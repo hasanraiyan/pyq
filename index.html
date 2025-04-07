@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ OOP PYQ Viewer (AKU/BEU 2019-2023)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e5e7eb; /* gray-200 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #9ca3af; /* gray-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* gray-500 */
+        }
+        /* Active chapter style */
+        .active-chapter {
+            background-color: #0ea5e9; /* sky-500 */
+            color: #ffffff; /* White text */
+            font-weight: 600;
+        }
+        .active-chapter:hover {
+             background-color: #0284c7; /* sky-600 */
+        }
+        /* Ensure layout fills height */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        .main-container {
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex flex-col md:flex-row min-h-screen main-container">
+        <aside class="w-full md:w-72 bg-white shadow-lg p-5 md:sticky md:top-0 md:h-screen overflow-y-auto flex-shrink-0">
+            <div class="mb-6 pb-3 border-b border-gray-200">
+                 <h2 class="text-2xl font-bold text-sky-700">Chapters</h2>
+            </div>
+            <nav id="chapter-nav" class="space-y-1.5">
+                <p class="text-gray-400 text-sm p-4 text-center">Loading chapters...</p>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+            <section id="question-display" class="bg-white p-6 rounded-lg shadow-md min-h-[400px]">
+                <div class="mb-6 pb-4 border-b border-gray-200">
+                    <h1 class="text-3xl font-bold text-gray-800">Object Oriented Programming using C++</h1>
+                    <p class="text-md text-gray-500 mt-1">Previous Year Questions (2019-2023) - Bihar Engineering University / AKU</p>
+                </div>
+
+                <h3 id="current-chapter-title" class="text-2xl font-semibold mb-6 text-sky-800">Select a Chapter</h3>
+
+                <div id="questions-list" class="space-y-5">
+                    <div class="flex justify-center items-center h-64">
+                        <p class="text-gray-500 text-lg">Please select a chapter from the navigation menu on the left.</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer id="verification" class="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200">
+                Loading verification...
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // --- Data: Questions extracted from PDFs (2019-2023) ---
+        const questionData = [
+            {
+                "chapter": "1. OOP Concepts & C++ Basics",
+                "questions": [
+                    { "year": 2021, "q": "Q2a: What are the advantages of object-oriented programming paradigm over procedural programming? Demonstrate the features of an object-oriented programming paradigm with their suitable implementations in C++." },
+                    { "year": 2020, "q": "Q1d (Special): Write the advantage of object-oriented programming over procedural programming." },
+                    { "year": 2019, "q": "Q2a: What is Object-oriented Programming (OOP)? Write the basic concepts of OOP." },
+                    { "year": 2021, "q": "Q1a: How will you take input in C++?" },
+                    { "year": 2021, "q": "Q2b: How will you define constants in C++? How will you access them? Elaborate with suitable examples." },
+                    { "year": 2020, "q": "Q1c (Special): How precedence of operators effects evaluation of an expression?" },
+                    { "year": 2020, "q": "Q1e (Special): Why we generally avoid goto in the programming?" },
+                    { "year": 2021, "q": "Q1e: What is derived data type in C++?" },
+                    { "year": 2020, "q": "Q1i (Special): Why we require derive data types in the programming when we already have different data types?" },
+                    { "year": 2020, "q": "Q1h (Special): What is the use of scope resolution operator?" },
+                    { "year": 2020, "q": "Q1f: Is it possible to return more than one value from a function? Explain with a small example." },
+                    { "year": 2019, "q": "Q1g: Which are the manipulators often required for formatted output?" },
+                    { "year": 2019, "q": "Q1h: What is generic programming?" },
+                    { "year": 2019, "q": "Q1i: How can command-line arguments passed to main() function?" },
+                    { "year": 2019, "q": "Q1j: What are namespaces?" },
+                    { "year": 2023, "q": "Q3a: Differentiate between Procedural oriented programming and Object oriented programming." }
+                ]
+            },
+            {
+                "chapter": "2. Classes and Objects",
+                "questions": [
+                    { "year": 2020, "q": "Q1g (Special): Write the difference between class and structure." },
+                    { "year": 2022, "q": "Q6a: Differentiate between a class and an object. Write an example (syntax) to define a class in C++." },
+                    { "year": 2019, "q": "Q2b: What do you mean by class and object?" },
+                    { "year": 2020, "q": "Q1c: Is there any difference between public protection and private protection?" },
+                    { "year": 2022, "q": "Q1c: What is the default access specifier for data members or member functions declared within a class without any specifier in C++? (Options: Private, Protected, Public, Depends on compiler)" },
+                    { "year": 2022, "q": "Q5b: What is access modifier in C++? Differentiate between each type." },
+                    { "year": 2020, "q": "Q8a: We knew that a private member of a base class is not inheritable. Is it anyway possible for the objects of a derived class to access the private members of the base class? If yes, how?" },
+                    { "year": 2020, "q": "Q1b (Special): Is it possible to access data without any member function in the class? Justify your reason." },
+                    { "year": 2019, "q": "Q1a: Which feature allows open recursion among the following? (Options: Use of this pointer, Use of pointers, Use of pass by value, Use of parameterized constructor)" },
+                    { "year": 2019, "q": "Q1d: If two classes combine some private data members and provides public member functions to access and manipulate those data members, where is abstraction used? (Options provided)" },
+                    { "year": 2021, "q": "Q1c: What are accessor and mutator functions?" },
+                    { "year": 2020, "q": "Q1g: What are the mutator functions? Give an example." },
+                    { "year": 2022, "q": "Q1d: Which of the following is not the member of class? (Options: Static function, Friend function, Constant function, Virtual function)" },
+                    { "year": 2019, "q": "Q5a: What is friend function?" },
+                    { "year": 2022, "q": "Q7a: What is a friend function and what are its advantages? What are the guidelines that should be followed while using friend function?" },
+                    { "year": 2023, "q": "Q7a: What is a friend function? A friend function cannot be used to overload the assignment operator =. Explain why." },
+                    { "year": 2020, "q": "Q6b (Special): A friend function cannot be used to overload the assignment operator =. Explain why." },
+                    { "year": 2020, "q": "Q6a: What do you mean by dynamic initialization of objects? Why do we need to do this? How is dynamic initialization of objects achieved?" },
+                    { "year": 2023, "q": "Q1c: Which of the following type of class allows only one object of it to be created? (Options: Virtual Class, Abstract Class, Singleton class, Friend class)" },
+                    { "year": 2022, "q": "Q1b: Which of the following is not a type of class? (Options: Abstract class, Final class, Start class, String class)" },
+                    { "year": 2019, "q": "Q5b: Write a program in C++ to demonstrate the working of friend function." }
+
+                ]
+            },
+            {
+                "chapter": "3. Constructors and Destructors",
+                "questions": [
+                    { "year": 2019, "q": "Q3a: With an example, explain the terms 'constructor' and 'destructor'." },
+                    { "year": 2022, "q": "Q6b: With an example, explain the terms constructor and destructor." },
+                    { "year": 2023, "q": "Q3b: With an example explain the terms constructor and destructor." },
+                    { "year": 2021, "q": "Q1b: How will you define a constructor in a C++ class?" },
+                    { "year": 2020, "q": "Q1h: Discuss the role of default constructor when an object of a class is created." },
+                    { "year": 2022, "q": "Q1e: Which constructor will be called from the object created in the code below? (Code Snippet Provided: Class A { int i; A() { cout << \"Default\"; } A(int x) { i=x; cout << \"Param\"; } }; int main() { A obj; return 0; })" },
+                    { "year": 2023, "q": "Q9a: Write short notes on Copy constructor." },
+                    { "year": 2023, "q": "Q1b: Does constructor overloading include different return types for functions to be overloaded? (Options provided regarding return types and signatures)" }
+                ]
+            },
+            {
+                "chapter": "4. Inheritance",
+                "questions": [
+                    { "year": 2020, "q": "Q1b: What is the purpose of using a derived class?" },
+                    { "year": 2022, "q": "Q1a: Which among the following best describes the inheritance? (Options: copying code, using code once, using defined functions, using data/functions in derived segment)" },
+                    { "year": 2019, "q": "Q7: What are various types of inheritance, shown in the following figure? (Figure shows Single, Multiple, Hierarchical, Multilevel)" },
+                    { "year": 2020, "q": "Q8a (Special): What are the different forms of inheritance? Give an example for each." },
+                    { "year": 2023, "q": "Q6a: What are the different forms of inheritance? Give an example for each." },
+                    { "year": 2020, "q": "Q1i: Write a small code which illustrates the concept of multiple inheritance." },
+                    { "year": 2020, "q": "Q1j (Special): Write a small code which illustrates the concept of multilevel inheritance." },
+                    { "year": 2020, "q": "Q7b: Write a C++ program to demonstrate example of hierarchical inheritance to get square and cube of a number." },
+                    { "year": 2022, "q": "Q8a: Explain how base class member functions can be involved in a derived class if the derived class also has a member function with the same name." },
+                    { "year": 2021, "q": "Q1g: When are virtual base classes necessary in C++?" },
+                    { "year": 2020, "q": "Q9a: Describe the relationship between class templates and inheritance." }
+                ]
+            },
+            {
+                "chapter": "5. Polymorphism",
+                "questions": [
+                    { "year": 2019, "q": "Q4a: What do you mean by polymorphism?" },
+                    { "year": 2022, "q": "Q9c: Write short notes on Polymorphism." },
+                    { "year": 2019, "q": "Q4b: With an example, differentiate between run-time and compile-time polymorphism." },
+                    { "year": 2020, "q": "Q1j: Differentiate between compile-time polymorphism and run-time polymorphism." },
+                    { "year": 2019, "q": "Q1b: If same message is passed to objects of several different classes and all of those can respond in a different way, what is this feature called? (Options: Inheritance, Overloading, Polymorphism, Overriding)" },
+                    { "year": 2021, "q": "Q1f: How will you implement runtime polymorphism in C++?" },
+                    { "year": 2019, "q": "Q3b: With an example, explain what virtual function is." },
+                    { "year": 2020, "q": "Q7b (Special): What is a virtual function? Why we need virtual functions?" },
+                    { "year": 2022, "q": "Q4a: What is virtual function? Write a program in C++ that prints 'BEU Patna' from inside a member function of a subclass overriding a pure virtual function." },
+                    { "year": 2022, "q": "Q1f: How can a pure virtual function be identified in C++? (Options: virtual keyword, pure keyword, equated to 0, location)" },
+                    { "year": 2023, "q": "Q1h: How can a pure virtual function be identified in C++? (Options: presence of keyword pure, location, equated to 0, none)" },
+                    { "year": 2023, "q": "Q9b: Write short notes on Pure virtual function." },
+                    { "year": 2019, "q": "Q1c: Which among the following is wrong? (Options involving abstract class declaration and object creation)" },
+                    { "year": 2020, "q": "Q1d: How does abstract class differ from interface?" },
+                    { "year": 2022, "q": "Q5a: Differentiate between abstract class and interface with suitable examples." },
+                    { "year": 2023, "q": "Q5a: Differentiate between abstract class and interface." },
+                    { "year": 2021, "q": "Q1h: What are the differences between function overloading and function overriding?" },
+                    { "year": 2023, "q": "Q7b: With suitable C++ programs, differentiate between Overloading and Overriding." },
+                    { "year": 2023, "q": "Q1a: To prevent any method from overriding we declare the method as (Options: static, final, const, None)" }
+                ]
+            },
+            {
+                "chapter": "6. Operator Overloading",
+                "questions": [
+                    { "year": 2020, "q": "Q6a (Special): What is operator overloading? Write a program in C++ to overload unary minus operator." },
+                    { "year": 2020, "q": "Q7a: Write a C++ program to define a class string and use overloaded == operator to compare two strings." },
+                    { "year": 2022, "q": "Q8b: Create a class complex and implement the following: (i) Define suitable constructors and destructors (ii) Overload the operators + and - (iii) Write a friend function sum which adds the real and imaginary parts of a complex object." },
+                    { "year": 2021, "q": "Q7b: Can you overload new and delete operators? If yes, demonstrate with a suitable example. If not, why?" }
+                ]
+            },
+            {
+                "chapter": "7. Templates",
+                "questions": [
+                    { "year": 2020, "q": "Q8b: Write a program that uses a function template called max to determine the largest of three arguments. Test the program using integer, character and floating-point number pairs." },
+                    { "year": 2020, "q": "Q8b (Special): Write a program that uses a function template called min to determine the smaller of two arguments. Test the program using integer, character and floating-point number pairs." },
+                    { "year": 2021, "q": "Q6b: What is a function template? Demonstrate with suitable examples." },
+                    { "year": 2023, "q": "Q5b: What is function template? Differentiate template class and class template." },
+                    { "year": 2021, "q": "Q6c: How will you declare a class template? Demonstrate with suitable examples." },
+                    { "year": 2020, "q": "Q9a: Describe the relationship between class templates and inheritance. Why is it appropriate to call a class template a parameterized type?" },
+                    { "year": 2020, "q": "Q9a (Special): What is the relationship between function templates and overloading? Explain with the help of an example." },
+                    { "year": 2023, "q": "Q8a: Write a program in C++ to show the overloading of template function." },
+                    { "year": 2022, "q": "Q9a: Write short notes on Templates." }
+
+                ]
+            },
+            {
+                "chapter": "8. Exception Handling",
+                "questions": [
+                    { "year": 2019, "q": "Q8a: What is an exception? What do you mean by exception handling?" },
+                    { "year": 2022, "q": "Q9b: Write short notes on Exception Handling." },
+                    { "year": 2019, "q": "Q8b: Explain the keywords try, catch and throw." },
+                    { "year": 2020, "q": "Q1f (Special): What is the role of try block in the exception handling?" },
+                    { "year": 2020, "q": "Q1e: What is the role of catch block in the exception handling?" },
+                    { "year": 2021, "q": "Q1i: How will you throw an exception in C++? Elaborate with an example." },
+                    { "year": 2021, "q": "Q1j: Name two standard exceptions built in C++. When are they thrown?" },
+                    { "year": 2020, "q": "Q9b (Special): What are the advantages of using exception handling mechanism in a program? Explain with an example." },
+                    { "year": 2021, "q": "Q8a: How can you handle any type of exception in catch block in C++? Demonstrate with an example." },
+                    { "year": 2021, "q": "Q8b: How will you create your own exception class in C++? Demonstrate. What is the functionality of what() function in creating own exception class?" },
+                    { "year": 2021, "q": "Q9b: How does stack unwinding work in C++? Demonstrate with a suitable example." },
+                    { "year": 2021, "q": "Q9c: Demonstrate nested try blocks in C++ with suitable example. Can an exception thrown by internal try block be caught by external catch clause? Can an exception thrown by external try block be caught by internal catch clause? In both cases, demonstrate with suitable examples." },
+                    { "year": 2020, "q": "Q9b: Write a program that demonstrates how certain exception types are not allowed to be thrown." },
+                    { "year": 2023, "q": "Q1d: What will happen if the exception is not caught in the program? (Options: Error, Program terminates, Block won't execute, Warning)" },
+                    { "year": 2023, "q": "Q8b: What is the difference between error and exception? When do we use multiple Catch handlers? Explain with suitable example." },
+                    { "year": 2022, "q": "Q1g: What is the use of try block? (Options: catch exception, throw exception, place code that might throw, none)" },
+                    { "year": 2022, "q": "Q1h: Which keyword is used to handle the exception? (Options: try, catch, throw, finally)" }
+
+                ]
+            },
+            {
+                "chapter": "9. File Handling",
+                "questions": [
+                    { "year": 2020, "q": "Q1a: Write the name of the function in C++ used for opening a file for input only." },
+                    { "year": 2019, "q": "Q1e: Which are the classes used for file stream operations?" },
+                    { "year": 2019, "q": "Q1f: What are the file modes used for file opening?" },
+                    { "year": 2019, "q": "Q9a: Write a program in C++ to demonstrate how class objects can be written to and read from disk files." },
+                    { "year": 2019, "q": "Q9b: Describe the various approaches by which we can detect the end-of-file condition." }
+                ]
+            },
+            {
+                "chapter": "10. Pointers & Memory Mgmt",
+                "questions": [
+                    { "year": 2020, "q": "Q1a (Special): How void pointers differ from general pointers?" },
+                    { "year": 2021, "q": "Q1d: What is void pointer in C++? Elaborate with an example." },
+                    { "year": 2021, "q": "Q7c: What is a reference? What are the differences between a pointer and a reference? Demonstrate with a suitable example of object pointer and object reference." },
+                    { "year": 2023, "q": "Q9c: Write short notes on Object pointer." },
+                    { "year": 2021, "q": "Q7a: How will you declare a dynamic array in C++? Demonstrate. What is 'nothrow' keyword used for?" },
+                    { "year": 2023, "q": "Q1e: In C++ dynamic memory allocation is done using ____ operator. (Options: calloc, malloc, new, allocate)" },
+                    { "year": 2022, "q": "Q7b: Explain dangling pointer with the help of an example." },
+                    { "year": 2020, "q": "Q7a (Special): Discuss why converting a base-class pointer to a derived-class pointer is considered dangerous by the compiler." },
+                    { "year": 2022, "q": "Q4b: Discuss why converting a base-class pointer to a derived-class pointer is considered dangerous by compiler." },
+                    { "year": 2023, "q": "Q4b: Discuss why converting a base class pointer to a derive class pointer is considered dangerous by the compiler." },
+                    { "year": 2023, "q": "Q4a: What are the advantages of passing arguments by reference? Write a C++ function zeroSmaller() that is passed two int arguments by reference and then sets smaller of the two numbers to zero. Add the code for main and also from where zeroSmaller() is called." }
+                ]
+            },
+             {
+                "chapter": "11. Specific Programs/Tasks",
+                "questions": [
+                     { "year": 2023, "q": "Q6b: Write an object oriented program in C++ using function overloading to check whether the input data (either strings or integers) are palindrome or not, and display the results accordingly." }
+                     // Add other specific programming tasks here if any were missed in categorization
+                ]
+            }
+        ];
+
+        // --- JavaScript Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const chapterNav = document.getElementById('chapter-nav');
+            const questionsList = document.getElementById('questions-list');
+            const currentChapterTitle = document.getElementById('current-chapter-title');
+            const verificationFooter = document.getElementById('verification');
+            let totalQuestionsRendered = 0;
+            let activeChapterLink = null;
+
+            // Clear loading message
+            chapterNav.innerHTML = '';
+
+            // Populate chapter navigation
+            questionData.forEach((chapterObj, index) => {
+                const link = document.createElement('a');
+                link.href = '#';
+                // Remove numbering from display text if present
+                link.textContent = chapterObj.chapter.replace(/^\d+\.\s*/, '');
+                link.dataset.chapterIndex = index; // Store index to retrieve questions
+                // Updated styling for chapter links
+                link.className = 'block py-2.5 px-4 rounded-md text-gray-700 hover:bg-sky-100 hover:text-sky-700 transition duration-150 ease-in-out text-sm font-medium';
+
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    displayQuestions(index);
+
+                    // Update active link style
+                    if (activeChapterLink) {
+                        activeChapterLink.classList.remove('active-chapter');
+                    }
+                    link.classList.add('active-chapter');
+                    activeChapterLink = link;
+                });
+
+                chapterNav.appendChild(link);
+            });
+
+            // Function to display questions for a selected chapter
+            function displayQuestions(chapterIndex) {
+                const chapter = questionData[chapterIndex];
+                 // Remove numbering from display text if present
+                currentChapterTitle.textContent = chapter.chapter.replace(/^\d+\.\s*/, '');
+                questionsList.innerHTML = ''; // Clear previous content (including default message)
+
+                if (!chapter.questions || chapter.questions.length === 0) {
+                    questionsList.innerHTML = '<p class="text-gray-500 p-4">No questions found for this chapter.</p>';
+                    return;
+                }
+
+                chapter.questions.forEach(q => {
+                    const questionElement = document.createElement('article');
+                    // Card styling for each question
+                    questionElement.className = 'border border-gray-200 bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200';
+
+                    // Make question number bold and format year as a badge
+                    const formattedQuestion = q.q.replace(/^(Q\d+[abc]?(\s\(Special\))?:)/, '<strong class="text-gray-900 mr-2">$1</strong>');
+
+                    questionElement.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                             <span class="text-xs font-semibold inline-block py-1 px-2.5 uppercase rounded-full text-sky-600 bg-sky-200">
+                                Year: ${q.year}
+                             </span>
+                        </div>
+                        <p class="text-gray-800 text-base leading-relaxed">${formattedQuestion}</p>
+                    `;
+                    questionsList.appendChild(questionElement);
+                });
+            }
+
+             // Calculate total questions for verification
+            questionData.forEach(chapter => {
+                totalQuestionsRendered += chapter.questions.length;
+            });
+
+            // Display verification message
+            verificationFooter.textContent = `Verification: Displaying ${totalQuestionsRendered} questions/parts categorized from the provided AKU/BEU C++ OOP PDFs (2019-2023).`;
+
+            // Optional: Display the first chapter by default if data exists
+            if (questionData.length > 0) {
+                 // Find the first link and simulate a click
+                const firstLink = chapterNav.querySelector('a');
+                if(firstLink) {
+                    firstLink.click(); // Automatically load the first chapter's questions
+                } else {
+                     // Handle case where no chapters were loaded (e.g., empty questionData)
+                     questionsList.innerHTML = '<p class="text-gray-500 p-4 text-center">No chapters available to display.</p>';
+                     currentChapterTitle.textContent = 'No Chapters';
+                }
+            } else {
+                 questionsList.innerHTML = '<p class="text-gray-500 p-4 text-center">No question data loaded.</p>';
+                 currentChapterTitle.textContent = 'No Data';
+                 verificationFooter.textContent = 'Verification: No questions loaded.';
+            }
+        });
+    </script>
+
+</body>
+</html>
