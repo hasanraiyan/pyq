@@ -1,7 +1,8 @@
-// js/script.js V5.0
+// js/script.js V5.1.1 (Includes Chapter in Ask AI)
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
+    // (Keep all elements from V5.1)
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const sidebarToggleButton = document.getElementById('sidebar-toggle-button');
@@ -14,19 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const verificationFooter = document.getElementById('verification');
     const initialPlaceholder = document.getElementById('initial-placeholder');
     const loadingIndicator = document.getElementById('loading-indicator');
-    const paginationControlsContainer = document.getElementById('pagination-controls'); // Renamed for clarity
+    const paginationControlsContainer = document.getElementById('pagination-controls');
     const searchInput = document.getElementById('search-input');
     const resetFiltersButton = document.getElementById('reset-filters');
 
+
     // --- State Variables ---
+    // (Keep all state variables from V5.1)
     let allQuestionsFlat = [];
     let filteredQuestions = [];
     let totalQuestionsCount = 0;
     let uniqueYears = new Set();
     let uniqueTopics = new Set();
     let currentPage = 1;
-    let itemsPerPage = 15; // Questions per page
-    let currentSearchTerm = ''; // Store current search term for highlighting
+    let itemsPerPage = 15;
+    let currentSearchTerm = '';
+
 
     const yearlyData = [
         {
@@ -748,7 +752,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // --- 1. Data Processing (Same as V4) ---
+
+    // --- 1. Data Processing ---
+    // (Keep processData function from V5.1)
     function processData(data) {
         allQuestionsFlat = [];
         uniqueYears = new Set();
@@ -757,7 +763,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach(yearData => {
             const currentYear = yearData.year;
-            // Use numericYear for sorting if available, otherwise parse year string
             const numericYear = yearData.numericYear || parseInt(String(currentYear).match(/\d{4}/)?.[0]) || String(currentYear);
             uniqueYears.add(currentYear);
 
@@ -768,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     allQuestionsFlat.push({
                         year: currentYear,
                         numericYear: numericYear,
-                        chapter: chapterClean,
+                        chapter: chapterClean, // Keep chapter associated
                         q: q.q.trim()
                     });
                     totalQuestionsCount++;
@@ -776,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Sort Topics (Module N first, then alphabetically)
+        // Sort Topics
         const sortedTopics = Array.from(uniqueTopics).sort((a, b) => {
             const matchA = a.match(/^Module\s*(\d+)/i);
             const matchB = b.match(/^Module\s*(\d+)/i);
@@ -787,19 +792,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         uniqueTopics = new Set(sortedTopics);
 
-        // Sort Years (Numerically descending, handling non-numeric)
+        // Sort Years
         const sortedYears = Array.from(uniqueYears).sort((a, b) => {
             const numA = parseInt(String(a).match(/\d{4}/)?.[0]) || (typeof a === 'number' ? a : -Infinity);
             const numB = parseInt(String(b).match(/\d{4}/)?.[0]) || (typeof b === 'number' ? b : -Infinity);
-            // Primarily sort by numeric year descending
             if (numB !== numA) return numB - numA;
-            // If numeric years are same or both non-numeric, sort by original string descending
             return String(b).localeCompare(String(a));
         });
         uniqueYears = new Set(sortedYears);
     }
 
-    // --- 2. Populate Filter Controls (Same as V4, ensures listeners added) ---
+
+    // --- 2. Populate Filter Controls ---
+    // (Keep populateFilters function from V5.1)
     function populateFilters() {
         yearFiltersContainer.querySelectorAll('label:not(:first-child)').forEach(el => el.remove());
         topicFiltersContainer.querySelectorAll('label:not(:first-child)').forEach(el => el.remove());
@@ -822,16 +827,17 @@ document.addEventListener('DOMContentLoaded', () => {
         addFilterListeners();
     }
 
+
     // --- 3. Filter & Search Logic ---
+    // (Keep applyFiltersAndSearch and getSelectedFilters from V5.1)
     function applyFiltersAndSearch() {
         const selectedYears = getSelectedFilters('year-filter', 'all-years');
         const selectedTopics = getSelectedFilters('topic-filter', 'all-topics');
-        currentSearchTerm = searchInput.value.trim().toLowerCase(); // Update global search term
+        currentSearchTerm = searchInput.value.trim().toLowerCase();
 
         filteredQuestions = allQuestionsFlat.filter(q => {
             const yearMatch = selectedYears.includes('all') || selectedYears.includes(String(q.year));
             const topicMatch = selectedTopics.includes('all') || selectedTopics.includes(q.chapter);
-            // Search matches if term is empty OR if question/chapter includes term
             const searchMatch = currentSearchTerm === '' ||
                 q.q.toLowerCase().includes(currentSearchTerm) ||
                 q.chapter.toLowerCase().includes(currentSearchTerm);
@@ -839,18 +845,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return yearMatch && topicMatch && searchMatch;
         });
 
-        // Sort filtered questions (most recent year first, then by original order/locale)
         filteredQuestions.sort((a, b) => {
             const numB = typeof b.numericYear === 'number' ? b.numericYear : (parseInt(String(b.year).match(/\d{4}/)?.[0]) || -Infinity);
             const numA = typeof a.numericYear === 'number' ? a.numericYear : (parseInt(String(a.year).match(/\d{4}/)?.[0]) || -Infinity);
             if (numB !== numA) return numB - numA;
-            // Basic stable sort within year (localeCompare on question text)
             return a.q.localeCompare(b.q);
         });
 
-        currentPage = 1; // Reset to first page after filtering/searching
+        currentPage = 1;
         displayFilteredQuestions();
-        // Scroll main content area to top after filtering
         mainContent.scrollTop = 0;
     }
 
@@ -863,21 +866,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll(`.${checkboxClass}:checked`).forEach(cb => {
             selected.push(cb.value);
         });
-        // Default to 'all' if no specific filters are checked AFTER the initial 'all' check
         return selected.length > 0 ? selected : ['all'];
     }
 
 
     // --- 4. Display Logic ---
+
+    // V5.1.1: Modified displayFilteredQuestions to add data-chapter attribute
     function displayFilteredQuestions() {
-        questionsList.innerHTML = ''; // Clear previous results
-        initialPlaceholder.innerHTML = ''; // Clear placeholder if any
-        loadingIndicator.classList.add('hidden'); // Ensure loading is hidden
+        questionsList.innerHTML = '';
+        initialPlaceholder.innerHTML = '';
+        loadingIndicator.classList.add('hidden');
 
         const totalItems = filteredQuestions.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-        // Validate currentPage
         if (totalPages > 0 && currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
@@ -885,17 +888,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const endIndex = startIndex + itemsPerPage;
         const questionsToDisplay = filteredQuestions.slice(startIndex, endIndex);
 
-        updateResultsHeader(totalItems, totalPages); // Pass totalPages
+        updateResultsHeader(totalItems, totalPages);
 
         if (totalItems === 0) {
             displayNoResultsMessage();
-            paginationControlsContainer.classList.add('hidden'); // Hide pagination
+            paginationControlsContainer.classList.add('hidden');
             return;
         }
 
         let currentYear = null;
-        questionsToDisplay.forEach((q) => {
-            // Add Year Heading
+        questionsToDisplay.forEach((q) => { // Use the raw question object 'q'
             if (q.year !== currentYear) {
                 currentYear = q.year;
                 const yearHeadingDiv = document.createElement('div');
@@ -904,167 +906,134 @@ document.addEventListener('DOMContentLoaded', () => {
                 questionsList.appendChild(yearHeadingDiv);
             }
 
-            // Create Question Element
             const questionElement = document.createElement('article');
-            questionElement.className = 'bg-white p-4 sm:p-5 rounded-lg shadow border border-slate-200 space-y-3 transition-shadow hover:shadow-md'; // Subtle shadow
+            questionElement.className = 'relative bg-white p-4 sm:p-5 rounded-lg shadow border border-slate-200 space-y-3 transition-shadow hover:shadow-md';
 
-            // Header (Topic)
             const headerDiv = document.createElement('div');
             headerDiv.className = 'flex justify-between items-start text-xs gap-2 border-b border-slate-100 pb-2 mb-3';
             const topicClean = q.chapter.replace(/^Module\s*\d+:\s*/i, '');
-            // Brighter topic tag
             headerDiv.innerHTML = `<span class="font-medium py-1 px-2.5 rounded-full bg-sky-100 text-sky-700 text-[11px] whitespace-nowrap border border-sky-200" title="${q.chapter}">Module: ${topicClean}</span>`;
             questionElement.appendChild(headerDiv);
 
-            // Content (Text and Code)
             const contentContainer = document.createElement('div');
             contentContainer.className = 'space-y-3';
-            // Pass currentSearchTerm for highlighting
             parseAndDisplayQuestionContent(q.q, contentContainer, currentSearchTerm);
             questionElement.appendChild(contentContainer);
+
+            // --- V5.1.1: Add "Ask AI" Button with Chapter Data ---
+            const askAIContainer = document.createElement('div');
+            askAIContainer.className = 'ask-ai-container';
+
+            const askAIButton = document.createElement('button');
+            askAIButton.className = 'ask-ai-button';
+            askAIButton.title = 'Ask this question (with topic context) on ChatGPT Search';
+            askAIButton.setAttribute('data-question', q.q);
+            askAIButton.setAttribute('data-chapter', q.chapter); // <<< Store chapter name here
+
+            askAIButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L1.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 12l.813-2.846a4.5 4.5 0 00-3.09-3.09L13.125 5.25l-.813 2.846a4.5 4.5 0 00-3.09 3.09L6.375 12l2.846.813a4.5 4.5 0 003.09 3.09L15 18.75l.813-2.846a4.5 4.5 0 003.09-3.09L21.75 12l-2.846-.813a4.5 4.5 0 00-3.09-3.09z" />
+                </svg>
+                <span>Ask AI</span>`;
+
+            askAIButton.addEventListener('click', handleAskAI);
+            askAIContainer.appendChild(askAIButton);
+            questionElement.appendChild(askAIContainer);
+            // --- End V5.1.1 Button ---
 
             questionsList.appendChild(questionElement);
         });
 
-        // IMPORTANT: Highlight Syntax AFTER adding all elements to the DOM for Prism Toolbar
         if (window.Prism) {
             Prism.highlightAllUnder(questionsList);
         }
 
-        updatePaginationControls(totalItems, totalPages); // Update pagination UI
+        updatePaginationControls(totalItems, totalPages);
     }
 
-    // V5: Added searchTerm for highlighting
-    // V5.0.1: Corrected parseAndDisplayQuestionContent to prevent duplication
+    // (Keep parseAndDisplayQuestionContent function from V5.1)
     function parseAndDisplayQuestionContent(questionText, container, searchTerm) {
         const codeBlockRegex = /```(cpp|c\+\+)?\s*\n([\s\S]*?)\n```/g;
         let lastIndex = 0;
         let match;
 
-        // Helper to safely highlight search term in text nodes (same as before)
         const highlightText = (text, term) => {
             if (!term || term.trim() === '' || !text) return text;
             try {
-                // Escape special regex characters in the search term
                 const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                // Create regex ensuring it doesn't match inside HTML tags (basic protection)
-                // We look for the term not preceded by '<' and not followed by '>' immediately
-                // This is NOT foolproof for complex nested HTML but better than nothing.
                 const regex = new RegExp(`(?<!<[^>]*)${escapedTerm}(?![^<]*>)`, 'gi');
-                return text.replace(regex, '<span class="search-highlight">$&</span>'); // $& inserts the matched text
-            } catch (e) {
-                console.error("Highlighting error:", e);
-                return text; // Return original text on error
-            }
+                return text.replace(regex, '<span class="search-highlight">$&</span>');
+            } catch (e) { console.error("Highlighting error:", e); return text; }
         };
 
-        // --- CORRECTED appendTextSegment ---
         const appendTextSegment = (text) => {
             const trimmedText = text.trim();
             if (trimmedText === '') return;
 
             const p = document.createElement('p');
             p.className = 'text-slate-700 text-[15px] leading-relaxed whitespace-pre-line';
-
             let qidSpanHTML = '';
-            let textToHighlight = trimmedText; // Start with the full trimmed text
-
-            // 1. Check for and extract the QID pattern at the beginning
-            //    Includes QID, colon, and optional space
+            let textToHighlight = trimmedText;
             const qidMatch = trimmedText.match(/^((?:Q\d+[a-z]?\s*:)\s*)/i);
 
             if (qidMatch) {
-                // If QID found, create the QID span (don't highlight this part)
-                qidSpanHTML = `<span class="q-identifier">${qidMatch[1].trim()}</span> `; // Add space after span
-                // The text to potentially highlight is everything *after* the matched QID part
+                qidSpanHTML = `<span class="q-identifier">${qidMatch[1].trim()}</span> `;
                 textToHighlight = trimmedText.substring(qidMatch[0].length);
             }
-
-            // 2. Apply highlighting ONLY to the remaining text (or the full text if no QID)
             const highlightedText = highlightText(textToHighlight, searchTerm);
-
-            // 3. Combine the QID (if any) and the highlighted text
             p.innerHTML = qidSpanHTML + highlightedText;
             container.appendChild(p);
         };
-        // --- END OF CORRECTED appendTextSegment ---
 
-
-        // --- Main loop to process text and code blocks (remains the same) ---
         while ((match = codeBlockRegex.exec(questionText)) !== null) {
-            // Append text segment before the current code block match
             appendTextSegment(questionText.substring(lastIndex, match.index));
-
-            // Create and append the code block
             const pre = document.createElement('pre');
             const code = document.createElement('code');
             const lang = match[1] ? 'cpp' : 'clike';
-            // Add line-numbers class if you want line numbers (requires Prism plugin)
-            pre.className = `language-${lang} line-numbers`;
+            pre.className = `language-${lang} line-numbers`; // Added line-numbers class
             code.className = `language-${lang}`;
-            code.textContent = match[2].trim(); // Code content
-
+            code.textContent = match[2].trim();
             pre.appendChild(code);
-            // Append pre element; Prism toolbar script will enhance it
             container.appendChild(pre);
-
-            lastIndex = codeBlockRegex.lastIndex; // Update index for next iteration
+            lastIndex = codeBlockRegex.lastIndex;
         }
-
-        // Append any remaining text after the last code block (or if no code blocks)
         appendTextSegment(questionText.substring(lastIndex));
     }
 
-
-    // V5: Updated header, added aria-live reporting
+    // (Keep updateResultsHeader function from V5.1)
     function updateResultsHeader(count, totalPages) {
         const selectedYears = getSelectedFilters('year-filter', 'all-years');
         const selectedTopics = getSelectedFilters('topic-filter', 'all-topics');
         const searchTerm = searchInput.value.trim();
-
         let title = '';
         let description = '';
 
         if (count === 0) {
             title = "No Questions Found";
             description = `No questions match your filters`;
-            if (searchTerm) {
-                description += ` and search term "${searchTerm}"`;
-            }
+            if (searchTerm) description += ` and search term "${searchTerm}"`;
             description += ". Try adjusting criteria.";
         } else {
             const startItem = (currentPage - 1) * itemsPerPage + 1;
             const endItem = Math.min(startItem + itemsPerPage - 1, count);
             title = `Found ${count} Question Part${count !== 1 ? 's' : ''}`;
             description = `Showing ${startItem}-${endItem} of ${count}`;
-            if (searchTerm) {
-                description += ` matching "${searchTerm}"`;
-            }
-            if (!selectedYears.includes('all') || !selectedTopics.includes('all')) {
-                description += ` (filtered)`;
-            }
-            // Add page info only if more than one page
-            if (totalPages > 1) {
-                description += `. Page ${currentPage} of ${totalPages}`;
-            }
+            if (searchTerm) description += ` matching "${searchTerm}"`;
+            if (!selectedYears.includes('all') || !selectedTopics.includes('all')) description += ` (filtered)`;
+            if (totalPages > 1) description += `. Page ${currentPage} of ${totalPages}`;
         }
-
         resultsTitle.textContent = title;
-        resultsDescription.textContent = description; // Update text for screen readers via aria-live
+        resultsDescription.textContent = description;
     }
 
-    // V5: Refined "No Results" display
+    // (Keep displayNoResultsMessage function from V5.1)
     function displayNoResultsMessage() {
-        questionsList.innerHTML = ''; // Clear list
-
+        questionsList.innerHTML = '';
         const noResultsDiv = document.createElement('div');
-        noResultsDiv.className = "flex flex-col justify-center items-center h-auto text-center p-8 py-16 bg-white rounded-lg border border-dashed border-indigo-200 shadow-sm mt-4"; // Adjusted styling
-
+        noResultsDiv.className = "flex flex-col justify-center items-center h-auto text-center p-8 py-16 bg-white rounded-lg border border-dashed border-indigo-200 shadow-sm mt-4";
         const searchTerm = searchInput.value.trim();
         let message = "No questions match your current filters.";
-        if (searchTerm) {
-            message = `No questions found matching "${searchTerm}" with the selected filters.`
-        }
+        if (searchTerm) message = `No questions found matching "${searchTerm}" with the selected filters.`
 
         noResultsDiv.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-indigo-300 mb-5">
@@ -1077,41 +1046,32 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
         questionsList.appendChild(noResultsDiv);
-
-        // Add listener to the clear button
         const clearButton = document.getElementById('clear-search-filters');
-        if (clearButton) {
-            clearButton.addEventListener('click', resetAllFilters); // Use the main reset function
-        }
+        if (clearButton) clearButton.addEventListener('click', resetAllFilters);
     }
 
 
     // --- 5. Pagination Logic ---
-    // V5: Generate styled buttons dynamically
+    // (Keep updatePaginationControls and goToPage from V5.1)
     function updatePaginationControls(totalItems, totalPages) {
-        paginationControlsContainer.innerHTML = ''; // Clear old controls
-
+        paginationControlsContainer.innerHTML = '';
         if (totalPages <= 1) {
             paginationControlsContainer.classList.add('hidden');
             return;
         }
-
         paginationControlsContainer.classList.remove('hidden');
 
-        // Previous Button
         const prevButton = document.createElement('button');
-        prevButton.innerHTML = '← Prev'; // Use HTML entities for arrows
+        prevButton.innerHTML = '← Prev';
         prevButton.disabled = currentPage === 1;
         prevButton.addEventListener('click', () => goToPage(currentPage - 1));
         paginationControlsContainer.appendChild(prevButton);
 
-        // Page Info Span
         const pageInfo = document.createElement('span');
-        pageInfo.id = 'pagination-info'; // Keep ID for potential styling
+        pageInfo.id = 'pagination-info';
         pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
         paginationControlsContainer.appendChild(pageInfo);
 
-        // Next Button
         const nextButton = document.createElement('button');
         nextButton.innerHTML = 'Next →';
         nextButton.disabled = currentPage === totalPages;
@@ -1124,35 +1084,60 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page >= 1 && page <= totalPages) {
             currentPage = page;
             displayFilteredQuestions();
-            mainContent.scrollTop = 0; // Scroll main content to top after page change
+            mainContent.scrollTop = 0;
         }
     }
 
 
     // --- 6. Event Listeners ---
+
+    // V5.1.1: Modified handler to include chapter
+    function handleAskAI(event) {
+        const button = event.currentTarget;
+        const questionText = button.dataset.question;
+        const chapterText = button.dataset.chapter || "General Topic"; // Get chapter, provide default
+
+        if (!questionText) {
+            console.error("Could not retrieve question text for Ask AI button.");
+            return;
+        }
+
+        // Clean up chapter text slightly (remove module prefix if desired)
+        const cleanChapter = chapterText.replace(/^Module\s*\d+:\s*/i, '');
+
+        // Construct the combined query for the AI
+        // Added context for clarity
+        const combinedQuery = `Regarding the C++ OOP topic "${cleanChapter}", please explain or answer the following question:\n\n${questionText}`;
+
+        // Construct the URL for chatgpt.com search
+        const encodedQuery = encodeURIComponent(combinedQuery);
+        const targetUrl = `https://chatgpt.com/search?q=${encodedQuery}`;
+
+        // Open the URL in a new tab
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    }
+
+
+    // (Keep addFilterListeners, resetAllFilters, search listener, sidebar logic, resize listener from V5.1)
     function addFilterListeners() {
         const allYearCheckbox = document.getElementById('all-years');
         const allTopicCheckbox = document.getElementById('all-topics');
         const yearCheckboxes = document.querySelectorAll('.year-filter');
         const topicCheckboxes = document.querySelectorAll('.topic-filter');
 
-        // Helper to manage "All" vs specific checkbox logic
         const handleFilterChange = (allCheckbox, specificCheckboxes) => {
             if (allCheckbox.checked) {
                 specificCheckboxes.forEach(cb => { cb.checked = false; });
             } else if (!Array.from(specificCheckboxes).some(c => c.checked)) {
-                // If unchecking the 'All' box AND no specifics are checked, re-check 'All'
-                // Or, if the last specific box was unchecked, check 'All'
                 allCheckbox.checked = true;
             }
             applyFiltersAndSearch();
         };
-
         const handleSpecificFilterChange = (specificCheckbox, allCheckbox, specificCheckboxes) => {
             if (specificCheckbox.checked) {
-                allCheckbox.checked = false; // Uncheck 'All' if a specific is checked
+                allCheckbox.checked = false;
             } else if (!Array.from(specificCheckboxes).some(c => c.checked)) {
-                allCheckbox.checked = true; // Check 'All' if no specifics are checked anymore
+                allCheckbox.checked = true;
             }
             applyFiltersAndSearch();
         };
@@ -1161,7 +1146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         yearCheckboxes.forEach(cb => {
             cb.addEventListener('change', () => handleSpecificFilterChange(cb, allYearCheckbox, yearCheckboxes));
         });
-
         allTopicCheckbox.addEventListener('change', () => handleFilterChange(allTopicCheckbox, topicCheckboxes));
         topicCheckboxes.forEach(cb => {
             cb.addEventListener('change', () => handleSpecificFilterChange(cb, allTopicCheckbox, topicCheckboxes));
@@ -1169,112 +1153,83 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetAllFilters() {
-        // Reset checkboxes
         document.getElementById('all-years').checked = true;
         document.getElementById('all-topics').checked = true;
         document.querySelectorAll('.year-filter, .topic-filter').forEach(cb => cb.checked = false);
-
-        // Reset search input
         searchInput.value = '';
-        currentSearchTerm = ''; // Clear internal state too
-
-        // Re-apply filters (which will now show all) and reset page
+        currentSearchTerm = '';
         applyFiltersAndSearch();
-
-        // Close sidebar on mobile after reset
         if (window.innerWidth < 768 && sidebar.classList.contains('open-sidebar')) {
             toggleSidebar();
         }
     }
-
     resetFiltersButton.addEventListener('click', resetAllFilters);
 
-    // Search Listener (debounced)
     let searchTimeout;
     searchInput.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             applyFiltersAndSearch();
-        }, 300); // Slightly longer debounce
+        }, 300);
     });
 
-    // No direct pagination listeners needed here as buttons are recreated
-
-    // --- 7. Sidebar Toggle Logic (Improved focus management potential) ---
     function toggleSidebar() {
         const isOpen = sidebar.classList.contains('open-sidebar');
         const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-        const firstFocusableElement = sidebar.querySelector(focusableElements); // Get first focusable element in sidebar
+        const firstFocusableElement = sidebar.querySelector(focusableElements);
 
         if (isOpen) {
             sidebar.classList.remove('open-sidebar');
             sidebarOverlay.classList.remove('active');
             sidebarToggleButton.setAttribute('aria-expanded', 'false');
-            if (window.innerWidth >= 768) {
-                mainContent.classList.remove('main-content-shifted');
-            }
-            sidebarToggleButton.focus(); // Return focus to the toggle button
+            if (window.innerWidth >= 768) mainContent.classList.remove('main-content-shifted');
+            sidebarToggleButton.focus();
         } else {
             sidebar.classList.add('open-sidebar');
             sidebarOverlay.classList.add('active');
             sidebarToggleButton.setAttribute('aria-expanded', 'true');
-            if (window.innerWidth >= 768) {
-                mainContent.classList.add('main-content-shifted');
-            }
-            // Optional: Move focus to the sidebar (e.g., first filter or reset button)
-            setTimeout(() => { // Delay needed for transition
+            if (window.innerWidth >= 768) mainContent.classList.add('main-content-shifted');
+            setTimeout(() => {
                 if (resetFiltersButton) resetFiltersButton.focus();
                 else if (firstFocusableElement) firstFocusableElement.focus();
             }, 300);
         }
     }
-
     sidebarToggleButton.addEventListener('click', toggleSidebar);
     sidebarOverlay.addEventListener('click', toggleSidebar);
-
-    // Handle keyboard Escape key to close sidebar
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && sidebar.classList.contains('open-sidebar')) {
             toggleSidebar();
         }
     });
 
-    // Adjust layout on resize (same as V4)
     window.addEventListener('resize', () => {
         const isOpen = sidebar.classList.contains('open-sidebar');
-        if (window.innerWidth >= 768) { // Desktop
+        if (window.innerWidth >= 768) {
             sidebarOverlay.classList.remove('active');
-            if (isOpen) {
-                mainContent.classList.add('main-content-shifted');
-            } else {
-                mainContent.classList.remove('main-content-shifted');
-            }
-            if (isOpen && !sidebar.style.transform) {
-                sidebar.classList.add('open-sidebar');
-            }
-        } else { // Mobile
+            if (isOpen) mainContent.classList.add('main-content-shifted');
+            else mainContent.classList.remove('main-content-shifted');
+            if (isOpen && !sidebar.style.transform) sidebar.classList.add('open-sidebar');
+        } else {
             mainContent.classList.remove('main-content-shifted');
-            if (isOpen) {
-                sidebarOverlay.classList.add('active');
-            } else {
-                sidebarOverlay.classList.remove('active');
-            }
+            if (isOpen) sidebarOverlay.classList.add('active');
+            else sidebarOverlay.classList.remove('active');
         }
     });
 
-    // --- 8. Initialization ---
+
+    // --- 7. Initialization ---
+    // (Keep initialize and setInitialSidebarState from V5.1, update version text)
     function initialize() {
-        console.log("Initializing PYQ Explorer V5.0...");
-        // Show loading indicator immediately
+        console.log("Initializing PYQ Explorer V5.1.1..."); // Update log
         loadingIndicator.classList.remove('hidden');
         questionsList.innerHTML = '';
         initialPlaceholder.innerHTML = '';
-        paginationControlsContainer.classList.add('hidden'); // Hide pagination initially
+        paginationControlsContainer.classList.add('hidden');
 
-        // Use a minimal timeout to allow the loading indicator to render before processing
         setTimeout(() => {
             try {
-                processData(yearlyData); // Process the embedded data
+                processData(yearlyData);
 
                 if (totalQuestionsCount === 0) {
                     console.warn("No question data found or processed.");
@@ -1286,37 +1241,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     console.log(`Processed ${totalQuestionsCount} questions across ${uniqueYears.size} years.`);
                     populateFilters();
-                    setInitialSidebarState(); // Set initial state based on screen size
-                    applyFiltersAndSearch(); // Perform initial filter/search and display
-                    verificationFooter.textContent = `Verified: ${totalQuestionsCount} question parts loaded across ${uniqueYears.size} year(s). V5.0`;
-                    // Loading indicator is hidden within displayFilteredQuestions/displayNoResultsMessage
+                    setInitialSidebarState();
+                    applyFiltersAndSearch();
+                    // Update version in footer
+                    verificationFooter.textContent = `Verified: ${totalQuestionsCount} question parts loaded across ${uniqueYears.size} year(s). V5.1.1`; // Update version text
                 }
             } catch (error) {
                 console.error("Initialization Error:", error);
                 resultsTitle.textContent = 'Initialization Error';
                 resultsDescription.textContent = 'Failed to load or process data. See console.';
                 verificationFooter.textContent = 'Verification: Error during initialization.';
-                questionsList.innerHTML = `<p class="text-red-600 p-4 font-medium">Error: ${error.message}. Please check the console (F12) for more details.</p>`;
+                questionsList.innerHTML = `<p class="text-red-600 p-4 font-medium">Error: ${error.message}. Check console.</p>`;
                 loadingIndicator.classList.add('hidden');
             }
-        }, 50); // 50ms delay
+        }, 50);
     }
 
     function setInitialSidebarState() {
-        if (window.innerWidth >= 768) { // Desktop
-            sidebar.classList.add('open-sidebar'); // Start open on desktop
+        if (window.innerWidth >= 768) {
+            sidebar.classList.add('open-sidebar');
             mainContent.classList.add('main-content-shifted');
             sidebarToggleButton.setAttribute('aria-expanded', 'true');
             sidebarOverlay.classList.remove('active');
-        } else { // Mobile
-            sidebar.classList.remove('open-sidebar'); // Start closed on mobile
+        } else {
+            sidebar.classList.remove('open-sidebar');
             mainContent.classList.remove('main-content-shifted');
             sidebarToggleButton.setAttribute('aria-expanded', 'false');
             sidebarOverlay.classList.remove('active');
         }
     }
 
-    // Start the application
     initialize();
 
 });

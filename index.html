@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V5.0: C++ OOP PYQ Explorer (AKU/BEU) - Polished UI</title>
+    <!-- V5.1 -->
+    <title>V5.1: C++ OOP PYQ Explorer (AKU/BEU) - Ask AI Feature</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons CDN -->
-    <!-- Not strictly needed if using SVG directly, but keep if used elsewhere -->
+    <!-- Keep if you want to use Heroicons SVGs directly -->
     <!-- Prism.js CSS (Okaidia theme + Toolbar) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet" />
@@ -17,7 +18,7 @@
 
 </head>
 
-<body class="font-sans text-slate-800 overflow-hidden bg-slate-100"> <!-- Slightly lighter bg -->
+<body class="font-sans text-slate-800 overflow-hidden bg-slate-100">
 
     <!-- Header -->
     <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-40 border-b border-slate-200 h-16">
@@ -54,14 +55,14 @@
 
                 <!-- Right Side: Version -->
                 <div class="text-xs sm:text-sm text-slate-400 whitespace-nowrap font-medium">
-                    V5.0
+                    V5.1 <!-- Updated Version -->
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Main Application Container -->
-    <div class="main-app-container"> <!-- Handles padding-top -->
+    <div class="main-app-container">
 
         <!-- Sidebar (Filters) -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-lg p-5 overflow-y-auto flex-shrink-0 flex flex-col space-y-6 border-r border-slate-200/80">
@@ -82,13 +83,13 @@
             </div>
 
             <!-- Filters Container -->
-            <div class="flex-grow overflow-y-auto space-y-5 pr-1 pb-4"> <!-- Added pb-4 -->
+            <div class="flex-grow overflow-y-auto space-y-5 pr-1 pb-4">
                 <!-- Filter by Year -->
                 <div class="filter-group space-y-1.5">
                     <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Year</h3>
                     <div id="year-filters" class="space-y-1">
                         <label class="filter-label"><input type="checkbox" id="all-years" class="filter-checkbox" value="all" checked><span>All Years</span></label>
-                        <!-- Year checkboxes will be populated here -->
+                        <!-- Year checkboxes populated here -->
                     </div>
                 </div>
                 <!-- Filter by Topic -->
@@ -96,7 +97,7 @@
                     <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Topic (Module)</h3>
                     <div id="topic-filters" class="space-y-1">
                         <label class="filter-label"><input type="checkbox" id="all-topics" class="filter-checkbox" value="all" checked><span>All Topics</span></label>
-                        <!-- Topic checkboxes will be populated here -->
+                        <!-- Topic checkboxes populated here -->
                     </div>
                 </div>
             </div>
@@ -114,12 +115,11 @@
         <main id="main-content" class="w-full p-6 md:p-8 lg:p-10">
             <section id="main-header" class="mb-6">
                 <h2 id="results-title" class="text-2xl md:text-3xl font-bold text-indigo-700 mb-1">Loading...</h2>
-                 <!-- Added aria-live -->
                 <p id="results-description" class="text-sm text-slate-500" aria-live="polite">Please wait while questions are loaded.</p>
             </section>
 
             <section id="question-display" class="min-h-[calc(100vh-280px)]">
-                 <!-- Loading Indicator (Improved visibility) -->
+                 <!-- Loading Indicator -->
                  <div id="loading-indicator" class="flex flex-col items-center justify-center py-20 text-slate-500">
                     <div class="loader"></div>
                     <p class="mt-3 text-sm">Loading Questions...</p>
@@ -127,14 +127,13 @@
 
                 <!-- Questions List -->
                 <div id="questions-list" class="space-y-6">
-                    <!-- Questions will be dynamically inserted here -->
-                     <!-- Placeholder while loading or if empty -->
+                    <!-- Questions dynamically inserted here -->
                      <div id="initial-placeholder"></div>
                 </div>
 
                 <!-- Pagination Controls -->
                 <div id="pagination-controls" class="mt-10 hidden">
-                    <!-- Styled Pagination Buttons -->
+                    <!-- Styled Pagination Buttons generated here -->
                 </div>
             </section>
 
@@ -150,6 +149,10 @@
     <!-- Prism.js Toolbar & Copy-to-Clipboard Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <!-- Optional: Line Numbers Plugin -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script> -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" /> -->
+
 
     <!-- Custom JavaScript -->
     <script src="js/script.js" defer></script>
