@@ -4,579 +4,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V2: C++ OOP PYQ Viewer (AKU/BEU)</title>
+    <title>V5.0: C++ OOP PYQ Explorer (AKU/BEU) - Polished UI</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Heroicons CDN (Optional, for icons) -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/heroicons@2.1.1/24/outline/index.js"></script>
-    <style>
-        /* Custom scrollbar - Enhanced */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
+    <!-- Heroicons CDN -->
+    <!-- Not strictly needed if using SVG directly, but keep if used elsewhere -->
+    <!-- Prism.js CSS (Okaidia theme + Toolbar) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
 
-        ::-webkit-scrollbar-track {
-            background: #e2e8f0;
-            /* slate-200 */
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            /* slate-400 */
-            border-radius: 10px;
-            border: 2px solid #e2e8f0;
-            /* slate-200 - gives padding */
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-            /* slate-500 */
-        }
-
-        /* Active chapter style - More prominent */
-        .active-chapter {
-            background-color: #e0e7ff;
-            /* indigo-100 */
-            color: #4338ca;
-            /* indigo-700 */
-            font-weight: 600;
-            /* Semibold */
-            border-left: 4px solid #4f46e5;
-            /* indigo-600 */
-            padding-left: calc(1rem - 4px);
-            /* Adjust padding to account for border */
-        }
-
-        .active-chapter:hover {
-            background-color: #c7d2fe;
-            /* indigo-200 */
-        }
-
-        /* Smooth transitions for sidebar */
-        #sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        /* Ensure layout fills height */
-        html,
-        body {
-            height: 100%;
-            scroll-behavior: smooth;
-            /* Optional: Smooth scroll for jumps */
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            background-color: #f8fafc;
-            /* slate-50 */
-        }
-
-        /* Main container structure */
-        .main-app-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            /* Important for nested scrolling */
-        }
-
-        aside {
-            scrollbar-gutter: stable;
-        }
-
-        main {
-            scrollbar-gutter: stable;
-        }
-
-        /* Code block styling enhancements */
-        pre[class*="language-"] {
-            position: relative;
-            /* Add more specific code styling here if needed */
-        }
-
-        /* Simple Q number styling */
-        .q-number {
-            font-weight: 600;
-            color: #1e293b;
-            /* slate-800 */
-            margin-right: 0.4em;
-        }
-    </style>
 </head>
 
-<body class="font-sans text-slate-800">
+<body class="font-sans text-slate-800 overflow-hidden bg-slate-100"> <!-- Slightly lighter bg -->
 
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-40 border-b border-slate-200 h-16">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-semibold text-indigo-600">C++ OOP PYQs</h1>
-                    <span class="ml-3 text-sm text-slate-500 hidden md:inline">AKU / BEU</span>
-                </div>
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" type="button"
-                        class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                <!-- Left Side: Toggle + Title -->
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <button id="sidebar-toggle-button" type="button"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors duration-150"
                         aria-controls="sidebar" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <!-- Heroicon name: outline/bars-3 -->
-                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        <span class="sr-only">Toggle Filters Sidebar</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
+                    <h1 class="text-lg sm:text-xl font-bold text-indigo-700 truncate">
+                        C++ OOP PYQ Explorer
+                        <span class="hidden md:inline text-sm text-slate-500 font-medium ml-1">AKU/BEU</span>
+                    </h1>
+                </div>
+
+                <!-- Center: Search Bar -->
+                <div class="flex-1 px-4 lg:px-8">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input id="search-input" name="search" type="search" placeholder="Search questions (e.g., virtual function)"
+                               class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Right Side: Version -->
+                <div class="text-xs sm:text-sm text-slate-400 whitespace-nowrap font-medium">
+                    V5.0
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Main Application Container -->
-    <div class="main-app-container">
+    <div class="main-app-container"> <!-- Handles padding-top -->
 
-        <!-- Sidebar -->
-        <aside id="sidebar"
-            class="fixed inset-y-0 left-0 z-30 w-72 bg-white shadow-lg md:shadow-none md:border-r md:border-slate-200 p-6 transform -translate-x-full md:relative md:translate-x-0 md:h-auto overflow-y-auto flex-shrink-0 flex flex-col">
-            <!-- Sticky Header inside sidebar -->
-            <div class="sticky top-0 -mt-6 pt-6 -mx-6 px-6 bg-white z-10">
-                <div class="mb-6 pb-4 border-b border-slate-200">
-                    <h2 class="text-lg font-semibold text-slate-800">Modules</h2>
-                    <p class="text-xs text-slate-500 mt-1">Select a topic</p>
+        <!-- Sidebar (Filters) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-lg p-5 overflow-y-auto flex-shrink-0 flex flex-col space-y-6 border-r border-slate-200/80">
+            <!-- Filter Header -->
+             <div class="flex justify-between items-center pb-3 border-b border-slate-200 sticky top-0 bg-white pt-1 z-10">
+                <h2 class="text-lg font-semibold text-slate-800 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-indigo-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                    </svg>
+                    Filters
+                </h2>
+                <button id="reset-filters" title="Reset All Filters" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition-colors duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                     </svg>
+                    Reset
+                </button>
+            </div>
+
+            <!-- Filters Container -->
+            <div class="flex-grow overflow-y-auto space-y-5 pr-1 pb-4"> <!-- Added pb-4 -->
+                <!-- Filter by Year -->
+                <div class="filter-group space-y-1.5">
+                    <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Year</h3>
+                    <div id="year-filters" class="space-y-1">
+                        <label class="filter-label"><input type="checkbox" id="all-years" class="filter-checkbox" value="all" checked><span>All Years</span></label>
+                        <!-- Year checkboxes will be populated here -->
+                    </div>
+                </div>
+                <!-- Filter by Topic -->
+                <div class="filter-group space-y-1.5">
+                    <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Topic (Module)</h3>
+                    <div id="topic-filters" class="space-y-1">
+                        <label class="filter-label"><input type="checkbox" id="all-topics" class="filter-checkbox" value="all" checked><span>All Topics</span></label>
+                        <!-- Topic checkboxes will be populated here -->
+                    </div>
                 </div>
             </div>
-            <!-- Navigation Area -->
-            <nav id="chapter-nav" class="space-y-1 mt-8 -mx-2 flex-grow">
-                <p class="text-slate-400 text-sm p-4 text-center">Loading chapters...</p>
-            </nav>
-            <!-- Sidebar Footer/Info -->
-            <div class="mt-auto pt-6 text-center text-xs text-slate-400">
-                V2 Interface
+
+            <!-- Footer hint -->
+            <div class="mt-auto pt-4 text-center text-xs text-slate-400 border-t border-slate-200">
+                Filter questions by year and topic.
             </div>
         </aside>
 
         <!-- Mobile Sidebar Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden" aria-hidden="true">
-        </div>
+        <div id="sidebar-overlay" class="" aria-hidden="true"></div>
 
         <!-- Main Content -->
-        <main id="main-content" class="flex-1 p-6 md:p-10 overflow-y-auto">
-            <!-- Dynamic Header -->
-            <section id="main-header" class="mb-8">
-                <h2 id="current-chapter-title" class="text-2xl md:text-3xl font-bold text-indigo-700 mb-2">Select a
-                    Chapter</h2>
-                <p id="current-chapter-description" class="text-sm text-slate-500">Questions for the selected chapter
-                    will appear below.</p>
+        <main id="main-content" class="w-full p-6 md:p-8 lg:p-10">
+            <section id="main-header" class="mb-6">
+                <h2 id="results-title" class="text-2xl md:text-3xl font-bold text-indigo-700 mb-1">Loading...</h2>
+                 <!-- Added aria-live -->
+                <p id="results-description" class="text-sm text-slate-500" aria-live="polite">Please wait while questions are loaded.</p>
             </section>
 
-            <!-- Dynamic Content Area -->
-            <section id="question-display" class="min-h-[calc(100vh-250px)]">
+            <section id="question-display" class="min-h-[calc(100vh-280px)]">
+                 <!-- Loading Indicator (Improved visibility) -->
+                 <div id="loading-indicator" class="flex flex-col items-center justify-center py-20 text-slate-500">
+                    <div class="loader"></div>
+                    <p class="mt-3 text-sm">Loading Questions...</p>
+                </div>
+
+                <!-- Questions List -->
                 <div id="questions-list" class="space-y-6">
-                    <!-- Initial Placeholder -->
-                    <div id="initial-placeholder"
-                        class="flex flex-col justify-center items-center h-[400px] text-center p-6 bg-white rounded-lg border border-dashed border-slate-300 shadow-sm">
-                        <!-- Heroicon name: outline/book-open -->
-                        <svg class="w-16 h-16 text-slate-300 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                        </svg>
-                        <p class="text-slate-600 text-lg font-medium">Welcome!</p>
-                        <p class="text-slate-400 text-sm mt-1 max-w-xs">Select a module from the sidebar to view the
-                            previous year questions.</p>
-                    </div>
+                    <!-- Questions will be dynamically inserted here -->
+                     <!-- Placeholder while loading or if empty -->
+                     <div id="initial-placeholder"></div>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div id="pagination-controls" class="mt-10 hidden">
+                    <!-- Styled Pagination Buttons -->
                 </div>
             </section>
 
-            <!-- Footer -->
             <footer id="verification" class="mt-12 pt-6 text-center text-xs text-slate-400 border-t border-slate-200">
-                Loading verification...
+                Verification status will appear here...
             </footer>
         </main>
     </div>
 
-    <script>
-        // --- IMPORTANT ---
-        const yearlyData = [
-            // Object for Year 2019
-            {
-                "year": 2019,
-                "questions": [
-                    // Question Object 1a
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Relates to object context ('this' pointer implicitly)
-                        "q": "Q1a: Which feature allows open recursion among the following?\n(i) Use of this pointer\n(ii) Use of pointers\n(iii) Use of pass by value\n(iv) Use of parameterized constructor"
-                    },
-                    // Question Object 1b
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Core concept of Polymorphism
-                        "q": "Q1b: If same message is passed to objects of several different classes and all of those can respond in a different way, what is this feature called?\n(i) Inheritance (ii) Overloading\n(iii) Polymorphism (iv) Overriding"
-                    },
-                    // Question Object 1c
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Abstract Class concept
-                        "q": "Q1c: Which among the following is wrong?\n(i) class student{}; student s;\n(ii) abstract class student{}; student s;\n(iii) abstract class student{} s[50000000];\n(iv) abstract class student{}; class toppers: public student{ }; topper t;"
-                    },
-                    // Question Object 1d
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Core concept of Abstraction
-                        "q": "Q1d: If two classes combine some private data members and provides public member functions to access and manipulate those data members, where is abstraction used?\n(i) Using private access specifier for data members\n(ii) Using class concept with both data members and member functions\n(iii) Using public member functions to access and manipulate the data members\n(iv) Data is not sufficient to decide what is being used"
-                    },
-                    // Question Object 1e
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Polymorphism using Abstract Class
-                        "q": "Q1e: Which class/set of classes can illustrate polymorphism in the following code\n```cpp\nabstract class student\n{\n  public: int marks;\n  virtual calc_grade() = 0; // Made virtual pure for abstract class context\n}\nclass topper: public student\n{\n  public: calc_grade() // Overriding\n  { return 10; }\n};\nclass average: public student\n{\n  public: calc_grade() // Overriding\n  { return 20; }\n};\nclass failed{int marks;};\n```\n(i) Only class student can show polymorphism\n(ii) Only class student and topper together can show polymorphism\n(iii) All class students, topper and average together can show polymorphism\n(iv) Class failed should also inherit class student for this code to work for polymorphism"
-                    },
-                    // Question Object 1f
-                    {
-                        "chapter": "Module 5: Pointers, Arrays and Exception Handling", // Pointer to member / relates to encapsulation (Module 3) but focus is pointer usage
-                        "q": "Q1f: Consider the following code and select the correct option:\n```cpp\nclass student\n{\n  int marks;\n  public: int* fun() // Assuming intended return type based on usage\n  {\n    return & marks;\n  }\n};\nmain()\n{\n  student s;\n  int *ptr = s.fun(); // Corrected c.fun() to s.fun()\n  return 0;\n}\n```\n(i) This code is good to go\n(ii) This code may result in undesirable conditions\n(iii) This code will generate error\n(iv) This code violates encapsulation"
-                    },
-                    // Question Object 1g
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Constructor usage and object instantiation
-                        "q": "Q1g: Which among the following is correct for the class defined below?\n```cpp\nclass student\n{\n  int marks;\n  public: student() {}\n  student(int x)\n  {\n    marks = x;\n  }\n};\nmain()\n{\n  student s1(100);\n  student s2(); // Function declaration (most vexing parse)\n  student s3 = 100; // Implicit conversion via constructor\n  return 0;\n}\n```\n(i) Object s3, syntax error\n(ii) Only object sl and s2 will be created\n(iii) Program runs and all objects are created // s2 is function declaration, s3 uses constructor\n(iv) Program will give compile-time error // Likely compiles, s2 doesn't create object"
-                    },
-                    // Question Object 1h
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Constructor rules (even though related to overloading - Module 2/4)
-                        "q": "Q1h: Does constructor overloading include different return types for constructors to be overloaded?\n(i) Yes, if return types are different, signature becomes different\n(ii) Yes, because return types can differentiate two functions\n(iii) No, return type can't differentiate two functions\n(iv) No, constructors doesn't have any return type"
-                    },
-                    // Question Object 1i
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Constructor calling mechanism
-                        "q": "Q1i: Which constructor will be called from the object created in the code below?\n```cpp\n#include <iostream>\nusing namespace std;\nclass A\n{\n  int i;\npublic: // Added access specifier\n  A()\n  {\n    i=0; cout<< i;\n  }\n  A(int x = 0)\n  {\n    i = x; cout<< i;\n  }\n};\nA obj1;\n```\n(i) Default constructor\n(ii) Parameterized constructor\n(iii) Compile-time error // Ambiguity between A() and A(int x=0)\n(iv) Run-time error"
-                    },
-                    // Question Object 1j
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Destructor lifecycle
-                        "q": "Q1j: When an object is passed to a function, its copy is made in the function and then\n(i) the destructor of the copy is called when function is returned\n(ii) the destructor is never called in this case\n(iii) the destructor is called but it is always implicit\n(iv) the destructor must be user defined"
-                    },
-                    // Question Object 2a
-                    {
-                        "chapter": "Module 1: Introduction to C++",
-                        "q": "Q2a: What is Object-oriented Programming (OOP)? Write the basic concepts of OOP."
-                    },
-                    // Question Object 2b
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction",
-                        "q": "Q2b: What do you mean by class and object?"
-                    },
-                    // Question Object 3a
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction",
-                        "q": "Q3a: With an example, explain the terms 'constructor' and 'destructor'."
-                    },
-                    // Question Object 3b
-                    {
-                        "chapter": "Module 2: Control Structures and Functions", // As Virtual Functions listed here
-                        "q": "Q3b: With an example, explain what virtual function is."
-                    },
-                    // Question Object 4a
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Polymorphism concept
-                        "q": "Q4a: What do you mean by polymorphism?"
-                    },
-                    // Question Object 4b
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Runtime vs Compile time Polymorphism
-                        "q": "Q4b: With an example, differentiate between run-time and compile-time polymorphism."
-                    },
-                    // Question Object 5a
-                    {
-                        "chapter": "Module 3: Classes and Data Abstraction", // Friend function relates to class access control
-                        "q": "Q5a: What is friend function?"
-                    },
-                    // Question Object 5b
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Pure virtual functions relate to Abstract Classes
-                        "q": "Q5b: What is pure virtual function?"
-                    },
-                    // Question Object 6a
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Abstract Class
-                        "q": "Q6a: What is abstract class? Write a program to illustrate. Also outline the advantages of abstract class."
-                    },
-                    // Question Object 6b
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Abstract Class comparison
-                        "q": "Q6b: Differentiate between abstract class and interface." // Interface concept often compared with Abstract Class
-                    },
-                    // Question Object 7
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Inheritance types
-                        "q": "Q7: What are various types of inheritance, shown in the following figure? [Figures showing Single (i), Multiple (ii), Hierarchical (iii) inheritance]"
-                    },
-                    // Question Object 8a
-                    {
-                        "chapter": "Module 5: Pointers, Arrays and Exception Handling", // Exception Handling basics
-                        "q": "Q8a: What is an exception? What do you mean by exception handling?"
-                    },
-                    // Question Object 8b
-                    {
-                        "chapter": "Module 5: Pointers, Arrays and Exception Handling", // Exception Handling keywords
-                        "q": "Q8b: Explain the keywords: try, catch and throw."
-                    },
-                    // Question Object 9a
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Overloading vs Overriding comparison
-                        "q": "Q9a: With the help of an example program, differentiate between the following: Overloading vs. Overriding"
-                    },
-                    // Question Object 9b
-                    {
-                        "chapter": "Module 4: Overloading, Templates and Inheritance", // Binding types (relates to polymorphism)
-                        "q": "Q9b: With the help of an example program, differentiate between the following: Early binding vs. Late binding"
-                    }
-                ]
-            }
-        ];
-       
-        // --- JavaScript Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const chapterNav = document.getElementById('chapter-nav');
-            const questionsList = document.getElementById('questions-list');
-            const currentChapterTitle = document.getElementById('current-chapter-title');
-            const currentChapterDesc = document.getElementById('current-chapter-description');
-            const verificationFooter = document.getElementById('verification');
-            const initialPlaceholder = document.getElementById('initial-placeholder');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
+    <!-- Prism.js Core & Autoloader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <!-- Prism.js Toolbar & Copy-to-Clipboard Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 
-            let activeChapterLink = null;
-            let totalQuestionsCount = 0;
-            const chapterQuestionCount = {}; // To store count per chapter
+    <!-- Custom JavaScript -->
+    <script src="js/script.js" defer></script>
 
-            // --- 1. Extract Unique Chapters, Count Total Questions, and Count per Chapter ---
-            const uniqueChapters = new Set();
-            yearlyData.forEach(yearData => {
-                yearData.questions.forEach(q => {
-                    const chapterClean = q.chapter.trim();
-                    if (chapterClean) {
-                        uniqueChapters.add(chapterClean);
-                        totalQuestionsCount++;
-                        // Initialize or increment chapter count
-                        chapterQuestionCount[chapterClean] = (chapterQuestionCount[chapterClean] || 0) + 1;
-                    }
-                });
-            });
-
-            const sortedChapters = Array.from(uniqueChapters).sort((a, b) => {
-                const matchA = a.match(/^Module\s*(\d+)/i);
-                const matchB = b.match(/^Module\s*(\d+)/i);
-                const numA = matchA ? parseInt(matchA[1], 10) : Infinity;
-                const numB = matchB ? parseInt(matchB[1], 10) : Infinity;
-                if (numA !== numB) return numA - numB;
-                return a.localeCompare(b); // Fallback sort by name if module numbers are same/missing
-            });
-
-            chapterNav.innerHTML = ''; // Clear loading message
-
-            // --- 2. Populate Chapter Navigation ---
-            if (sortedChapters.length === 0) {
-                chapterNav.innerHTML = '<p class="text-slate-500 text-sm p-4 text-center">No chapters found.</p>';
-            } else {
-                sortedChapters.forEach(chapterName => {
-                    const count = chapterQuestionCount[chapterName] || 0;
-                    const link = document.createElement('a');
-                    link.href = '#';
-                    // Extract only the part after "Module X: " for display
-                    const displayChapterName = chapterName.replace(/^Module\s*\d+:\s*/i, '');
-                    link.title = chapterName; // Keep full name in title attribute
-                    link.dataset.chapter = chapterName;
-                    // Updated classes for V2 style with question count
-                    link.className = 'flex justify-between items-center py-2.5 px-4 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition duration-150 ease-in-out text-sm font-medium border-l-4 border-transparent';
-                    link.innerHTML = `
-                        <span>${displayChapterName}</span>
-                        <span class="text-xs font-medium bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">${count}</span>
-                    `; // Display count
-
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        displayQuestions(chapterName);
-                        setActiveChapter(link);
-                        // Close sidebar on mobile after selection
-                        if (window.innerWidth < 768) { // md breakpoint
-                            closeSidebar();
-                        }
-                        // Scroll main content to top
-                        mainContent.scrollTop = 0;
-                    });
-                    chapterNav.appendChild(link);
-                });
-            }
-
-            // --- Helper function to set active chapter ---
-            function setActiveChapter(linkElement) {
-                if (activeChapterLink) {
-                    activeChapterLink.classList.remove('active-chapter');
-                    // Reset count style for previously active link
-                    const prevCountSpan = activeChapterLink.querySelector('span:last-child');
-                    if (prevCountSpan) {
-                        prevCountSpan.classList.remove('bg-indigo-100', 'text-indigo-700');
-                        prevCountSpan.classList.add('bg-slate-100', 'text-slate-500');
-                    }
-                }
-                linkElement.classList.add('active-chapter');
-                // Update count style for the newly active link
-                const countSpan = linkElement.querySelector('span:last-child');
-                if (countSpan) {
-                    countSpan.classList.remove('bg-slate-100', 'text-slate-500');
-                    countSpan.classList.add('bg-indigo-100', 'text-indigo-700');
-                }
-
-                activeChapterLink = linkElement;
-            }
-
-            // --- Helper functions for Mobile Sidebar ---
-            function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
-                sidebarOverlay.classList.remove('hidden');
-                mobileMenuButton.setAttribute('aria-expanded', 'true');
-            }
-
-            function closeSidebar() {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.add('hidden');
-                mobileMenuButton.setAttribute('aria-expanded', 'false');
-            }
-
-            // --- Mobile Sidebar Event Listeners ---
-            mobileMenuButton.addEventListener('click', () => {
-                // Use computed style to check visibility in case of resize issues
-                const style = window.getComputedStyle(sidebar);
-                if (style.transform === 'matrix(1, 0, 0, 1, -288, 0)' || sidebar.classList.contains('-translate-x-full')) { // Check for -translate-x-full or equivalent matrix
-                    openSidebar();
-                } else {
-                    closeSidebar();
-                }
-            });
-            sidebarOverlay.addEventListener('click', closeSidebar);
-
-
-            // --- 3. Function to Display Questions for a Selected Chapter ---
-            function displayQuestions(selectedChapter) {
-                // Update header title and description
-                const displayChapterName = selectedChapter.replace(/^Module\s*\d+:\s*/i, ''); // Clean name
-                currentChapterTitle.textContent = displayChapterName;
-                const count = chapterQuestionCount[selectedChapter] || 0;
-                currentChapterDesc.textContent = `Showing ${count} question${count !== 1 ? 's' : ''} found for this module.`;
-
-                questionsList.innerHTML = ''; // Clear previous content or placeholder
-                initialPlaceholder?.remove(); // Remove initial placeholder if it exists
-
-                let questionsFound = [];
-                yearlyData.forEach(yearData => {
-                    yearData.questions.forEach(q => {
-                        if (q.chapter.trim() === selectedChapter) {
-                            questionsFound.push({ ...q, year: yearData.year });
-                        }
-                    });
-                });
-
-                // Sort questions by year (newest first) within the chapter
-                questionsFound.sort((a, b) => b.year - a.year);
-
-                if (questionsFound.length === 0) {
-                    questionsList.innerHTML = `<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center text-slate-500">
-                        <p class="font-medium">No questions found for this chapter.</p>
-                        <p class="text-sm mt-1">Please select another chapter from the sidebar.</p>
-                        </div>`;
-                    return;
-                }
-
-                questionsFound.forEach((q, index) => {
-                    const questionElement = document.createElement('article');
-                    // Updated classes for V2 question card style
-                    questionElement.className = 'bg-white p-5 rounded-lg shadow-md border border-slate-200/80 space-y-4 transition-shadow hover:shadow-lg'; // Added hover effect
-
-                    // --- Header (Year, Count) ---
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'flex justify-between items-center text-xs border-b border-slate-100 pb-3 mb-3'; // Added border bottom
-                    headerDiv.innerHTML = `
-                        <span class="font-semibold py-1 px-3 rounded-full bg-indigo-100 text-indigo-800">${q.year}</span>
-                        <span class="text-slate-400 font-medium">Question ${index + 1} of ${questionsFound.length}</span>
-                    `;
-                    questionElement.appendChild(headerDiv);
-
-                    // --- Content Parsing (Text and Code Blocks) ---
-                    const contentContainer = document.createElement('div');
-                    contentContainer.className = 'space-y-3'; // Add space between text/code blocks
-                    questionElement.appendChild(contentContainer);
-
-                    const codeBlockRegex = /```(cpp|c\+\+)?\s*\n([\s\S]*?)\n```/g;
-                    let lastIndex = 0;
-                    let match;
-
-                    const appendTextSegment = (text) => {
-                        const trimmedText = text.trim();
-                        if (trimmedText === '') return;
-
-                        const p = document.createElement('p');
-                        // Use pre-line for line breaks from \n, adjust text style
-                        p.className = 'text-slate-700 text-base leading-relaxed whitespace-pre-line';
-
-                        // Apply Q number styling using a span
-                        p.innerHTML = trimmedText.replace(/^((?:Q\d+[a-z]?):)/i, '<span class="q-number">$1</span>');
-
-                        contentContainer.appendChild(p);
-                    };
-
-                    while ((match = codeBlockRegex.exec(q.q)) !== null) {
-                        appendTextSegment(q.q.substring(lastIndex, match.index));
-
-                        const pre = document.createElement('pre');
-                        // Updated classes for V2 code block style
-                        pre.className = 'bg-slate-800 text-slate-200 p-4 rounded-md overflow-x-auto text-sm font-mono shadow-inner my-3 language-cpp'; // Assume cpp, added language class
-                        const code = document.createElement('code');
-                        code.textContent = match[2].trim(); // Trim whitespace from code block content
-                        pre.appendChild(code);
-                        contentContainer.appendChild(pre);
-
-                        lastIndex = codeBlockRegex.lastIndex;
-                    }
-
-                    appendTextSegment(q.q.substring(lastIndex));
-                    // --- End Content Parsing ---
-
-                    questionsList.appendChild(questionElement);
-                });
-            }
-
-            // --- 4. Display Verification Message ---
-            if (totalQuestionsCount > 0) {
-                verificationFooter.textContent = `Verified: ${totalQuestionsCount} question parts loaded across ${yearlyData.length} year(s) for AKU/BEU C++ OOP.`;
-            } else {
-                verificationFooter.textContent = `Verification: No question data loaded.`;
-            }
-
-
-            // --- 5. Set Initial State ---
-            if (sortedChapters.length === 0) {
-                questionsList.innerHTML = ''; // Clear placeholder if it exists
-                const noDataPlaceholder = document.createElement('div');
-                noDataPlaceholder.className = "flex flex-col justify-center items-center h-[400px] text-center p-6 bg-white rounded-lg border border-dashed border-slate-300 shadow-sm";
-                noDataPlaceholder.innerHTML = `
-                     <svg class="w-16 h-16 text-red-300 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /> </svg>
-                     <p class="text-slate-600 text-lg font-medium">No Data Found</p>
-                     <p class="text-slate-400 text-sm mt-1 max-w-xs">Could not load any chapters or questions. Please check the data source.</p>
-                 `;
-                questionsList.appendChild(noDataPlaceholder);
-                currentChapterTitle.textContent = 'No Data Available';
-                currentChapterDesc.textContent = 'Please check the data source or add question data.';
-            }
-            // Optional: Pre-select first chapter on desktop load
-            // if (window.innerWidth >= 768 && sortedChapters.length > 0) {
-            //    const firstChapterLink = chapterNav.querySelector('a');
-            //    if (firstChapterLink) {
-            //        // Use setTimeout to ensure rendering is complete before clicking
-            //        setTimeout(() => firstChapterLink.click(), 0);
-            //    }
-            // }
-
-        });
-    </script>
 </body>
 </html>
