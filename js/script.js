@@ -931,9 +931,27 @@ document.addEventListener('DOMContentLoaded', () => {
             askAIButton.setAttribute('data-chapter', q.chapter); // <<< Store chapter name here
 
             askAIButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L1.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 12l.813-2.846a4.5 4.5 0 00-3.09-3.09L13.125 5.25l-.813 2.846a4.5 4.5 0 00-3.09 3.09L6.375 12l2.846.813a4.5 4.5 0 003.09 3.09L15 18.75l.813-2.846a4.5 4.5 0 003.09-3.09L21.75 12l-2.846-.813a4.5 4.5 0 00-3.09-3.09z" />
-                </svg>
+               <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .outer-circle {
+      fill: #4CAF50; /* Green */
+    }
+    .inner-circle {
+      fill: #FFFFFF; /* White */
+    }
+    .question-mark {
+      font-family: sans-serif;
+      font-size: 56px;
+      font-weight: bold;
+      fill: #4CAF50; /* Green */
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+  </style>
+  <circle class="outer-circle" cx="50" cy="50" r="45"/>
+  <circle class="inner-circle" cx="50" cy="50" r="30"/>
+  <text class="question-mark" x="50" y="55">?</text>
+</svg>
                 <span>Ask AI</span>`;
 
             askAIButton.addEventListener('click', handleAskAI);
