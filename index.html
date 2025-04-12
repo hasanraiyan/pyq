@@ -4,39 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- V5.1 -->
-    <title>V5.1: C++ OOP PYQ Explorer (AKU/BEU) - Ask AI Feature</title>
+    <!-- V5.2 -->
+    <title>V5.2: C++ OOP PYQ Explorer (AKU/BEU) - Ask AI Feature</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons CDN -->
     <!-- Keep if you want to use Heroicons SVGs directly -->
     <!-- Prism.js CSS (Okaidia theme + Toolbar) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css"
+        rel="stylesheet" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-
+    <!-- Optional: Google Font for slightly better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="font-sans text-slate-800 overflow-hidden bg-slate-100">
+<body class="font-[Inter,sans-serif] text-slate-800 overflow-hidden bg-slate-100"> 
 
     <!-- Header -->
+    
     <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-40 border-b border-slate-200 h-16">
         <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Left Side: Toggle + Title -->
-                <div class="flex items-center space-x-2 md:space-x-3">
+                <div class="flex items-center space-x-2 md:space-x-4"> 
                     <button id="sidebar-toggle-button" type="button"
                         class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors duration-150"
                         aria-controls="sidebar" aria-expanded="false">
                         <span class="sr-only">Toggle Filters Sidebar</span>
-                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
                     <h1 class="text-lg sm:text-xl font-bold text-indigo-700 truncate">
                         C++ OOP PYQ Explorer
-                        <span class="hidden md:inline text-sm text-slate-500 font-medium ml-1">AKU/BEU</span>
+                        <span class="hidden md:inline text-sm text-slate-500 font-medium ml-1.5">AKU/BEU</span> 
                     </h1>
                 </div>
 
@@ -44,18 +51,23 @@
                 <div class="flex-1 px-4 lg:px-8">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                    clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <input id="search-input" name="search" type="search" placeholder="Search questions (e.g., virtual function)"
-                               class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out shadow-sm">
+                        <input id="search-input" name="search" type="search"
+                            placeholder="Search questions (e.g., virtual function)"
+                            class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out shadow-sm hover:border-slate-400">
+                        
                     </div>
                 </div>
 
                 <!-- Right Side: Version -->
                 <div class="text-xs sm:text-sm text-slate-400 whitespace-nowrap font-medium">
-                    V5.1 <!-- Updated Version -->
+                    V5.2 
                 </div>
             </div>
         </div>
@@ -65,30 +77,40 @@
     <div class="main-app-container">
 
         <!-- Sidebar (Filters) -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-lg p-5 overflow-y-auto flex-shrink-0 flex flex-col space-y-6 border-r border-slate-200/80">
+        
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 w-72 bg-white p-5 overflow-y-auto flex-shrink-0 flex flex-col space-y-6 border-r border-slate-200/80">
             <!-- Filter Header -->
-             <div class="flex justify-between items-center pb-3 border-b border-slate-200 sticky top-0 bg-white pt-1 z-10">
+            
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 pt-1 z-10">
                 <h2 class="text-lg font-semibold text-slate-800 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5 mr-2 text-indigo-500">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
                     </svg>
                     Filters
                 </h2>
-                <button id="reset-filters" title="Reset All Filters" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition-colors duration-150">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
-                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                     </svg>
+                <button id="reset-filters" title="Reset All Filters"
+                    class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition-colors duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-4 h-4 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
                     Reset
                 </button>
             </div>
 
             <!-- Filters Container -->
-            <div class="flex-grow overflow-y-auto space-y-5 pr-1 pb-4">
+            
+            <div class="flex-grow overflow-y-auto space-y-6 pr-1 pb-4">
                 <!-- Filter by Year -->
                 <div class="filter-group space-y-1.5">
                     <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Year</h3>
                     <div id="year-filters" class="space-y-1">
-                        <label class="filter-label"><input type="checkbox" id="all-years" class="filter-checkbox" value="all" checked><span>All Years</span></label>
+                        <label class="filter-label"><input type="checkbox" id="all-years" class="filter-checkbox"
+                                value="all" checked><span>All Years</span></label>
                         <!-- Year checkboxes populated here -->
                     </div>
                 </div>
@@ -96,17 +118,19 @@
                 <div class="filter-group space-y-1.5">
                     <h3 class="text-sm font-semibold text-slate-600 mb-2 px-1">By Topic (Module)</h3>
                     <div id="topic-filters" class="space-y-1">
-                        <label class="filter-label"><input type="checkbox" id="all-topics" class="filter-checkbox" value="all" checked><span>All Topics</span></label>
+                        <label class="filter-label"><input type="checkbox" id="all-topics" class="filter-checkbox"
+                                value="all" checked><span>All Topics</span></label>
                         <!-- Topic checkboxes populated here -->
                     </div>
                 </div>
             </div>
 
             <!-- Footer hint -->
-            <div class="mt-auto pt-4 text-center text-xs text-slate-400 border-t border-slate-200">
+            
+            <div class="mt-auto pt-5 text-center text-xs text-slate-400 border-t border-slate-200">
                 Filter questions by year and topic.
-                <br> <!-- Added line break -->
-                This app created by Raiyan Hasan <!-- Added text -->
+                <br>
+                Created by Raiyan Hasan
             </div>
         </aside>
 
@@ -114,52 +138,55 @@
         <div id="sidebar-overlay" class="" aria-hidden="true"></div>
 
         <!-- Main Content -->
+        
         <main id="main-content" class="w-full p-6 md:p-8 lg:p-10">
-            <section id="main-header" class="mb-6">
-                <h2 id="results-title" class="text-2xl md:text-3xl font-bold text-indigo-700 mb-1">Loading...</h2>
-                <p id="results-description" class="text-sm text-slate-500" aria-live="polite">Please wait while questions are loaded.</p>
+            <section id="main-header" class="mb-8"> 
+                <h2 id="results-title" class="text-2xl md:text-3xl font-bold text-indigo-700 mb-1.5">Loading...</h2> 
+                <p id="results-description" class="text-sm text-slate-500" aria-live="polite">Please wait while
+                    questions are loaded.</p>
             </section>
 
-            <section id="question-display" class="min-h-[calc(100vh-280px)]">
-                 <!-- Loading Indicator -->
-                 <div id="loading-indicator" class="flex flex-col items-center justify-center py-20 text-slate-500">
+            <section id="question-display" class="min-h-[calc(100vh-300px)]"> 
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="flex flex-col items-center justify-center py-24 text-slate-500"> 
                     <div class="loader"></div>
-                    <p class="mt-3 text-sm">Loading Questions...</p>
+                    <p class="mt-4 text-sm">Loading Questions...</p> 
                 </div>
 
                 <!-- Questions List -->
-                <div id="questions-list" class="space-y-6">
+                
+                <div id="questions-list" class="space-y-8">
                     <!-- Questions dynamically inserted here -->
-                     <div id="initial-placeholder"></div>
+                    <div id="initial-placeholder"></div>
                 </div>
 
                 <!-- Pagination Controls -->
-                <div id="pagination-controls" class="mt-10 hidden">
+                <div id="pagination-controls" class="mt-12 hidden"> 
                     <!-- Styled Pagination Buttons generated here -->
                 </div>
             </section>
 
-            <footer id="verification" class="mt-12 pt-6 text-center text-xs text-slate-400 border-t border-slate-200">
+            <footer id="verification" class="mt-16 pt-8 text-center text-xs text-slate-400 border-t border-slate-200">
+                
                 Verification status will appear here...
-                <br> <!-- Added line break -->
-                This app created by Raiyan Hasan <!-- Added text -->
+                <br>
+                Created by Raiyan Hasan
             </footer>
         </main>
     </div>
 
     <!-- Prism.js Core & Autoloader -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <!-- Prism.js Toolbar & Copy-to-Clipboard Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
-    <!-- Optional: Line Numbers Plugin -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script> -->
-    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" /> -->
-
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 
     <!-- Custom JavaScript -->
     <script src="js/script.js" defer></script>
 
 </body>
+
 </html>

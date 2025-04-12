@@ -872,7 +872,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. Display Logic ---
 
-    // V5.1.1: Modified displayFilteredQuestions to add data-chapter attribute
+    // In js/script.js
+
+    // --- 4. Display Logic ---
+
+    // V5.2: Modified displayFilteredQuestions for improved card styling
     function displayFilteredQuestions() {
         questionsList.innerHTML = '';
         initialPlaceholder.innerHTML = '';
@@ -897,77 +901,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let currentYear = null;
-        questionsToDisplay.forEach((q) => { // Use the raw question object 'q'
+        questionsToDisplay.forEach((q) => {
             if (q.year !== currentYear) {
                 currentYear = q.year;
                 const yearHeadingDiv = document.createElement('div');
-                yearHeadingDiv.className = 'year-heading';
+                yearHeadingDiv.className = 'year-heading'; // Uses new CSS styling
                 yearHeadingDiv.innerHTML = `<h3>${currentYear}</h3>`;
                 questionsList.appendChild(yearHeadingDiv);
             }
 
             const questionElement = document.createElement('article');
-            questionElement.className = 'relative bg-white p-4 sm:p-5 rounded-lg shadow border border-slate-200 space-y-3 transition-shadow hover:shadow-md';
+            // Use new CSS classes for the article container
+            questionElement.className = 'question-article space-y-3'; // Combined classes
 
             const headerDiv = document.createElement('div');
-            headerDiv.className = 'flex justify-between items-start text-xs gap-2 border-b border-slate-100 pb-2 mb-3';
+            // Use new CSS class for the header area
+            headerDiv.className = 'question-header';
             const topicClean = q.chapter.replace(/^Module\s*\d+:\s*/i, '');
-            headerDiv.innerHTML = `<span class="font-medium py-1 px-2.5 rounded-full bg-sky-100 text-sky-700 text-[11px] whitespace-nowrap border border-sky-200" title="${q.chapter}">Module: ${topicClean}</span>`;
+            // Use new CSS class for the topic badge
+            headerDiv.innerHTML = `<span class="topic-badge" title="${q.chapter}">Module: ${topicClean}</span>`;
+            // Optional: Add year/q-number here if desired, e.g.
+            // headerDiv.innerHTML += `<span class="text-xs text-slate-400 font-medium">${q.q.match(/^(Q\d+[a-z]?)/i)?.[0] || ''}</span>`;
             questionElement.appendChild(headerDiv);
 
             const contentContainer = document.createElement('div');
-            contentContainer.className = 'space-y-3';
+            // Use new CSS class for the content area
+            contentContainer.className = 'question-content space-y-3'; // Add space-y if needed inside
             parseAndDisplayQuestionContent(q.q, contentContainer, currentSearchTerm);
             questionElement.appendChild(contentContainer);
 
-            // --- V5.1.1: Add "Ask AI" Button with Chapter Data ---
+            // --- Ask AI Button (using new CSS styles) ---
             const askAIContainer = document.createElement('div');
-            askAIContainer.className = 'ask-ai-container';
+            askAIContainer.className = 'ask-ai-container'; // Uses new CSS
 
             const askAIButton = document.createElement('button');
-            askAIButton.className = 'ask-ai-button';
+            askAIButton.className = 'ask-ai-button'; // Uses new CSS
             askAIButton.title = 'Ask this question (with topic context) on ChatGPT Search';
             askAIButton.setAttribute('data-question', q.q);
-            askAIButton.setAttribute('data-chapter', q.chapter); // <<< Store chapter name here
+            askAIButton.setAttribute('data-chapter', q.chapter);
 
+            // Adjusted SVG icon for better fit (if needed, or adjust CSS)
+            // The CSS .ask-ai-button svg { width: 1em; height: 1em; } should handle size now.
             askAIButton.innerHTML = `
-               <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .outer-circle {
-      fill: #4CAF50; /* Green */
-    }
-    .inner-circle {
-      fill: #FFFFFF; /* White */
-    }
-    .question-mark {
-      font-family: sans-serif;
-      font-size: 56px;
-      font-weight: bold;
-      fill: #4CAF50; /* Green */
-      text-anchor: middle;
-      dominant-baseline: middle;
-    }
-  </style>
-  <circle class="outer-circle" cx="50" cy="50" r="45"/>
-  <circle class="inner-circle" cx="50" cy="50" r="30"/>
-  <text class="question-mark" x="50" y="55">?</text>
-</svg>
-                <span>Ask AI</span>`;
+            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.94 6.94a.75.75 0 11-1.06-1.061 3.5 3.5 0 014.862.013l.001.001.045.054.031.036.047.05.028.03.055.056.023.024c.18.174.342.36.483.554l.004.006a4.002 4.002 0 01.06 6.193l-.004.005a.75.75 0 01-1.06-1.06l.004-.005a2.5 2.5 0 00-.037-3.874l-.004-.004A2.5 2.5 0 008.94 6.941zM10 15.25a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008z"></path></svg>
+            <span>Ask AI</span>`; // Using a simpler Heroicon style icon
 
             askAIButton.addEventListener('click', handleAskAI);
             askAIContainer.appendChild(askAIButton);
             questionElement.appendChild(askAIContainer);
-            // --- End V5.1.1 Button ---
+            // --- End Ask AI Button ---
 
             questionsList.appendChild(questionElement);
         });
 
         if (window.Prism) {
-            Prism.highlightAllUnder(questionsList);
+            // Re-highlight AFTER all elements are added
+            // Use setTimeout to ensure DOM update before highlighting
+            setTimeout(() => {
+                Prism.highlightAllUnder(questionsList);
+            }, 0);
         }
 
         updatePaginationControls(totalItems, totalPages);
     }
+
+
 
     // (Keep parseAndDisplayQuestionContent function from V5.1)
     function parseAndDisplayQuestionContent(questionText, container, searchTerm) {
