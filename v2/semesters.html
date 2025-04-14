@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEU Question Browser - Select Semester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4 md:p-6">
+
+    <div class="container mx-auto max-w-3xl">
+         <header class="mb-6 text-center">
+             <h1 class="text-2xl md:text-3xl font-bold text-indigo-700">BEU Question Browser</h1>
+         </header>
+
+        <div class="page-container">
+            <a href="index.html" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                Back to Branches
+            </a>
+
+            <h2 id="semester-header" class="page-header">Select Semester</h2>
+            <p id="semester-subheader" class="page-subheader">Choose a semester for the selected branch.</p>
+
+            <div id="semester-list" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+                 <p class="loading-text">Loading semesters...</p>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            Data for demonstration.
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="beuData.js"></script>
+    <script src="utils.js"></script> <!-- Include utils for getUrlParameter -->
+    <script>
+        $(document).ready(function() {
+            const $semesterListDiv = $('#semester-list');
+            const $semesterHeader = $('#semester-header');
+            const $semesterSubheader = $('#semester-subheader');
+
+            const branchId = getUrlParameter('branch');
+            let selectedBranch = null;
+
+            if (!branchId) {
+                $semesterListDiv.html('<p class="empty-text text-red-600">Error: Branch ID not specified in URL.</p>');
+                $semesterHeader.text('Error');
+                $semesterSubheader.text('Could not load semesters.');
+                return;
+            }
+
+            // Find the selected branch data
+            if (typeof beuData !== 'undefined' && beuData.branches) {
+                 selectedBranch = beuData.branches.find(b => b.id === branchId);
+            }
+
+            if (!selectedBranch) {
+                 $semesterListDiv.html(`<p class="empty-text text-red-600">Error: Branch with ID '${branchId}' not found.</p>`);
+                 $semesterHeader.text('Error');
+                 $semesterSubheader.text('Could not load semesters.');
+                 return;
+            }
+
+            // --- Load Semesters ---
+             $semesterHeader.text(`Semesters in ${selectedBranch.name}`);
+             $semesterSubheader.text('Choose a semester.');
+             $semesterListDiv.empty(); // Clear loading message
+
+             if (selectedBranch.semesters && selectedBranch.semesters.length > 0) {
+                 let hasVisibleSemesters = false;
+                 selectedBranch.semesters.forEach(semester => {
+                     // Check if semester has subjects with questions
+                     const hasSubjectsWithData = semester.subjects && semester.subjects.some(sub => sub.questions && sub.questions.length > 0);
+
+                     if (hasSubjectsWithData) {
+                         hasVisibleSemesters = true;
+                         const $button = $(`
+                             <a href="subjects.html?branch=${branchId}&sem=${semester.id}" class="nav-button">
+                                 <span class="truncate pr-2">Semester ${semester.number}</span>
+                                 <svg class="flex-shrink-0 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                 </svg>
+                             </a>
+                         `);
+                         $semesterListDiv.append($button);
+                     } else {
+                         // Optional: Show disabled semester if it has no subjects with data
+                         const $disabledInfo = $(`
+                            <div class="nav-button-disabled">
+                                <span class="truncate pr-2">Semester ${semester.number}</span>
+                                <span class="no-data-text">No subjects available</span>
+                            </div>
+                        `);
+                        $semesterListDiv.append($disabledInfo);
+                     }
+                 });
+
+                 if (!hasVisibleSemesters && $semesterListDiv.children('.nav-button-disabled').length > 0) {
+                     // If only disabled semesters exist
+                      $semesterListDiv.prepend('<p class="empty-text pb-2">No semesters with available subjects found for this branch.</p>');
+                 } else if ($semesterListDiv.children().length === 0) {
+                      // If no semesters were found at all
+                      $semesterListDiv.html('<p class="empty-text">No semesters found for this branch.</p>');
+                 }
+
+             } else {
+                 $semesterListDiv.html('<p class="empty-text">No semesters found for this branch.</p>');
+             }
+
+        });
+    </script>
+
+</body>
+</html>

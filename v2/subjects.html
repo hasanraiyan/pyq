@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEU Question Browser - Select Subject</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4 md:p-6">
+
+    <div class="container mx-auto max-w-3xl">
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-700">BEU Question Browser</h1>
+        </header>
+
+        <div class="page-container">
+            <a id="back-to-semester" href="#" class="back-button"> <!-- Href will be set by JS -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                Back to Semesters
+            </a>
+
+            <h2 id="subject-header" class="page-header">Select Subject</h2>
+            <p id="subject-subheader" class="page-subheader">Choose a subject for the selected semester.</p>
+
+            <div id="subject-list" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+                 <p class="loading-text">Loading subjects...</p>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            Data for demonstration.
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="beuData.js"></script>
+    <script src="utils.js"></script>
+    <script>
+        $(document).ready(function() {
+            const $subjectListDiv = $('#subject-list');
+            const $subjectHeader = $('#subject-header');
+            const $subjectSubheader = $('#subject-subheader');
+            const $backButton = $('#back-to-semester');
+
+            const branchId = getUrlParameter('branch');
+            const semesterId = getUrlParameter('sem');
+
+            let selectedBranch = null;
+            let selectedSemester = null;
+
+            // --- Validate Input and Find Data ---
+            if (!branchId || !semesterId) {
+                $subjectListDiv.html('<p class="empty-text text-red-600">Error: Branch or Semester ID missing in URL.</p>');
+                $subjectHeader.text('Error');
+                $subjectSubheader.text('Could not load subjects.');
+                $backButton.attr('href', 'index.html'); // Default back link
+                return;
+            }
+
+            // Set back button link
+            $backButton.attr('href', `semesters.html?branch=${branchId}`);
+
+            if (typeof beuData !== 'undefined' && beuData.branches) {
+                selectedBranch = beuData.branches.find(b => b.id === branchId);
+                if (selectedBranch && selectedBranch.semesters) {
+                     selectedSemester = selectedBranch.semesters.find(s => s.id === semesterId);
+                }
+            }
+
+            if (!selectedBranch || !selectedSemester) {
+                 $subjectListDiv.html(`<p class="empty-text text-red-600">Error: Could not find data for Branch '${branchId}' / Semester '${semesterId}'.</p>`);
+                 $subjectHeader.text('Error');
+                 $subjectSubheader.text('Could not load subjects.');
+                 return;
+            }
+
+            // --- Load Subjects ---
+            $subjectHeader.text(`Subjects for ${selectedBranch.name} - Sem ${selectedSemester.number}`);
+            $subjectSubheader.text('Choose a subject.');
+            $subjectListDiv.empty(); // Clear loading
+
+            if (selectedSemester.subjects && selectedSemester.subjects.length > 0) {
+                 let hasVisibleSubjects = false;
+                 selectedSemester.subjects.forEach(subject => {
+                      // Check if subject has questions
+                      const hasQuestions = subject.questions && subject.questions.length > 0;
+
+                      if (hasQuestions) {
+                          hasVisibleSubjects = true;
+                          const $button = $(`
+                              <a href="questions.html?branch=${branchId}&sem=${semesterId}&subject=${subject.id}" class="nav-button">
+                                  <span class="truncate pr-2">${subject.name} (${subject.code})</span>
+                                  <svg class="flex-shrink-0 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                  </svg>
+                              </a>
+                          `);
+                          $subjectListDiv.append($button);
+                      } else {
+                           // Optional: Show disabled subject if it has no questions
+                           const $disabledInfo = $(`
+                            <div class="nav-button-disabled">
+                                <span class="truncate pr-2">${subject.name} (${subject.code})</span>
+                                <span class="no-data-text">No questions available</span>
+                            </div>
+                        `);
+                          $subjectListDiv.append($disabledInfo);
+                      }
+                 });
+
+                 if (!hasVisibleSubjects && $subjectListDiv.children('.nav-button-disabled').length > 0) {
+                     $subjectListDiv.prepend('<p class="empty-text pb-2">No subjects with available questions found for this semester.</p>');
+                 } else if ($subjectListDiv.children().length === 0) {
+                     $subjectListDiv.html('<p class="empty-text">No subjects found for this semester.</p>');
+                 }
+
+            } else {
+                 $subjectListDiv.html('<p class="empty-text">No subjects found for this semester.</p>');
+            }
+        });
+    </script>
+
+</body>
+</html>

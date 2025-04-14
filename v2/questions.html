@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEU Question Browser - Questions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Optional: Add Highlight.js for code syntax highlighting -->
+    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"> -->
+    <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script> -->
+</head>
+<body class="bg-gray-100 p-4 md:p-6">
+
+    <div class="container mx-auto max-w-4xl"> <!-- Slightly wider container for questions -->
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-700">BEU Question Browser</h1>
+        </header>
+
+        <div class="page-container">
+            <a id="back-to-subject" href="#" class="back-button"> <!-- Href will be set by JS -->
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                Back to Subjects
+            </a>
+
+            <h2 id="question-header" class="page-header">Questions</h2>
+            <p id="question-subheader" class="page-subheader">Past questions for the selected subject.</p>
+
+            <!-- Sorting Controls -->
+            <div id="sorting-controls" class="sorting-controls" style="display: none;"> <!-- Hide initially -->
+                 <label for="sort-by">Sort by:</label>
+                 <select id="sort-by" class="sort-select">
+                     <option value="default">Default Order</option>
+                     <option value="year_asc">Year (Oldest First)</option>
+                     <option value="year_desc">Year (Newest First)</option>
+                     <option value="chapter_asc">Chapter (A-Z)</option>
+                     <option value="marks_asc">Marks (Low to High)</option>
+                     <option value="marks_desc">Marks (High to Low)</option>
+                 </select>
+            </div>
+
+            <div id="question-list" class="space-y-4 max-h-[75vh] overflow-y-auto px-1">
+                <p class="loading-text">Loading questions...</p>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            Data for demonstration.
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="beuData.js"></script>
+    <script src="utils.js"></script>
+    <!-- <script>hljs.highlightAll();</script> --> <!-- Initialize Highlight.js if used -->
+
+    <script>
+        $(document).ready(function() {
+            const $questionListDiv = $('#question-list');
+            const $questionHeader = $('#question-header');
+            const $questionSubheader = $('#question-subheader');
+            const $backButton = $('#back-to-subject');
+            const $sortingControls = $('#sorting-controls');
+            const $sortSelect = $('#sort-by');
+
+            const branchId = getUrlParameter('branch');
+            const semesterId = getUrlParameter('sem');
+            const subjectId = getUrlParameter('subject');
+
+            let selectedBranch = null;
+            let selectedSemester = null;
+            let selectedSubject = null;
+            let currentQuestions = []; // To hold the questions for sorting
+
+            // --- Validate Input and Find Data ---
+            if (!branchId || !semesterId || !subjectId) {
+                $questionListDiv.html('<p class="empty-text text-red-600">Error: Branch, Semester, or Subject ID missing in URL.</p>');
+                $questionHeader.text('Error');
+                $questionSubheader.text('Could not load questions.');
+                $backButton.attr('href', 'index.html'); // Default back
+                return;
+            }
+
+            // Set back button link
+            $backButton.attr('href', `subjects.html?branch=${branchId}&sem=${semesterId}`);
+
+            if (typeof beuData !== 'undefined' && beuData.branches) {
+                 selectedBranch = beuData.branches.find(b => b.id === branchId);
+                 if (selectedBranch && selectedBranch.semesters) {
+                     selectedSemester = selectedBranch.semesters.find(s => s.id === semesterId);
+                     if (selectedSemester && selectedSemester.subjects) {
+                         selectedSubject = selectedSemester.subjects.find(sub => sub.id === subjectId);
+                     }
+                 }
+            }
+
+            if (!selectedBranch || !selectedSemester || !selectedSubject) {
+                 $questionListDiv.html(`<p class="empty-text text-red-600">Error: Could not find data for the specified path.</p>`);
+                 $questionHeader.text('Error');
+                 $questionSubheader.text('Could not load questions.');
+                 return;
+            }
+
+            // --- Display Header ---
+            $questionHeader.text(`Questions for ${selectedSubject.name} (${selectedSubject.code})`);
+            $questionSubheader.text(`${selectedBranch.name} - Sem ${selectedSemester.number}`);
+
+            // --- Function to Display Questions ---
+            function displayQuestions(questionsToDisplay) {
+                $questionListDiv.empty(); // Clear previous questions or loading message
+
+                if (!questionsToDisplay || questionsToDisplay.length === 0) {
+                    $questionListDiv.html('<p class="empty-text">No questions found for this subject.</p>');
+                    $sortingControls.hide(); // Hide sorting if no questions
+                    return;
+                }
+
+                $sortingControls.show(); // Show sorting controls
+
+                questionsToDisplay.forEach(q => {
+                    const isCompleted = isQuestionCompleted(q.questionId);
+                    const plainTextQuestion = getQuestionPlainText(q.text); // Get plain text for searches/copy
+                    const displayQuestionText = formatQuestionTextForDisplay(q.text); // Format for display
+
+                    // Use encodeURIComponent for data attribute to handle special chars
+                    const encodedPlainText = encodeURIComponent(plainTextQuestion);
+
+                    const $card = $(`
+                        <div class="question-card ${isCompleted ? 'completed' : ''}" data-question-id="${q.questionId}" data-question-text="${encodedPlainText}">
+                            <div class="question-card-header">
+                                <div class="question-card-tags">
+                                    <span>${q.year || 'N/A'}</span>
+                                    <span>${q.qNumber || 'N/A'}</span>
+                                    <span class="marks-tag">${q.marks || 'N/A'} Marks</span>
+                                </div>
+                                <label class="toggle-switch" title="Mark as completed">
+                                    <input type="checkbox" class="completion-toggle" ${isCompleted ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="question-card-chapter">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 16c1.669 0 3.218-.51 4.5-1.385A7.962 7.962 0 0114.5 16c1.255 0 2.443-.29 3.5-.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>
+                                <span>${q.chapter || 'Chapter N/A'}</span>
+                            </div>
+                            <div class="question-text">
+                                ${displayQuestionText}
+                            </div>
+                            <div class="question-card-actions">
+                                <div class="action-button-group">
+                                    <button class="action-button google-search-button" title="Search on Google">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.19,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.19,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.19,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z" /></svg>
+                                    </button>
+                                    <div class="tooltip">
+                                        <button class="action-button copy-button" title="Copy Question Text">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+                                        </button>
+                                        <span class="tooltiptext">Copy</span>
+                                    </div>
+                                </div>
+                                <button class="ask-ai-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L1.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.25 9.75l1.606 1.606a4.5 4.5 0 0 1 2.122 3.09l.813 2.846-.813 2.846a4.5 4.5 0 0 1-2.122 3.09l-1.606 1.606-1.606-1.606a4.5 4.5 0 0 1-3.09-2.122l-2.846-.813 2.846-.813a4.5 4.5 0 0 1 3.09-2.122l1.606-1.606Z M18.25 9.75 16.644 8.144a4.5 4.5 0 0 1-3.09-2.122L12.75 3l.813-2.846a4.5 4.5 0 0 1 2.122-3.09L18.25.25l1.606 1.606a4.5 4.5 0 0 1 2.122 3.09L22.75 8l-.813 2.846a4.5 4.5 0 0 1-2.122 3.09L18.25 15l-1.606-1.606a4.5 4.5 0 0 1-3.09-2.122L12.75 9l.813-2.846a4.5 4.5 0 0 1 2.122-3.09L18.25 9.75Z" /></svg>
+                                    Ask AI
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    $questionListDiv.append($card);
+                });
+
+                // Optional: Re-apply syntax highlighting if using a library like Highlight.js
+                // if (typeof hljs !== 'undefined') {
+                //     $('pre code').each(function(i, block) {
+                //         hljs.highlightElement(block);
+                //     });
+                // }
+            }
+
+            // --- Load Initial Questions ---
+            currentQuestions = selectedSubject.questions ? [...selectedSubject.questions] : []; // Make a copy for sorting
+            displayQuestions(currentQuestions); // Initial display
+
+            // --- Sorting Logic ---
+            $sortSelect.on('change', function() {
+                const sortBy = $(this).val();
+                let sortedQuestions = [...currentQuestions]; // Work on a copy
+
+                switch (sortBy) {
+                    case 'year_asc':
+                        sortedQuestions.sort((a, b) => (a.year || 0) - (b.year || 0));
+                        break;
+                    case 'year_desc':
+                        sortedQuestions.sort((a, b) => (b.year || 0) - (a.year || 0));
+                        break;
+                    case 'chapter_asc':
+                        sortedQuestions.sort((a, b) => (a.chapter || '').localeCompare(b.chapter || ''));
+                        break;
+                    case 'marks_asc':
+                         sortedQuestions.sort((a, b) => (a.marks || 0) - (b.marks || 0));
+                        break;
+                    case 'marks_desc':
+                        sortedQuestions.sort((a, b) => (b.marks || 0) - (a.marks || 0));
+                        break;
+                    case 'default':
+                    default:
+                        // Use the original order (which is implicitly stored in currentQuestions)
+                        sortedQuestions = [...currentQuestions];
+                        break;
+                }
+                displayQuestions(sortedQuestions); // Re-display sorted questions
+            });
+
+
+            // --- Event Handlers for Question Card Actions (Delegated) ---
+
+            // Handle Completion Toggle
+            $questionListDiv.on('change', '.completion-toggle', function() {
+                const $toggle = $(this);
+                const $card = $toggle.closest('.question-card');
+                const questionId = $card.data('question-id');
+                const isCompleted = $toggle.is(':checked');
+
+                setQuestionCompleted(questionId, isCompleted);
+                $card.toggleClass('completed', isCompleted);
+            });
+
+            // Handle Ask AI Button
+            $questionListDiv.on('click', '.ask-ai-button', function() {
+                const $card = $(this).closest('.question-card');
+                const encodedQuestionText = $card.data('question-text');
+                const questionText = decodeURIComponent(encodedQuestionText); // Decode the stored text
+                 // Optional: Add more context if needed
+                 // const questionData = currentQuestions.find(q => q.questionId === $card.data('question-id'));
+                 // const context = `Subject: ${selectedSubject.name}, Year: ${questionData?.year || 'N/A'}`;
+                 // const prompt = `${context}\nQuestion: ${questionText}`;
+                const searchUrl = `https://chatgpt.com/search?q=${encodeURIComponent(questionText)}`;
+                window.open(searchUrl, '_blank');
+            });
+
+            // Handle Google Search Button
+            $questionListDiv.on('click', '.google-search-button', function() {
+                const $card = $(this).closest('.question-card');
+                const encodedQuestionText = $card.data('question-text');
+                const questionText = decodeURIComponent(encodedQuestionText);
+                const searchUrl = `https://google.com/search?q=${encodeURIComponent(questionText)}`;
+                window.open(searchUrl, '_blank');
+            });
+
+            // Handle Copy Button
+            $questionListDiv.on('click', '.copy-button', function() {
+                const $button = $(this);
+                const $card = $button.closest('.question-card');
+                const encodedQuestionText = $card.data('question-text');
+                const questionText = decodeURIComponent(encodedQuestionText);
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(questionText).then(() => {
+                        showTooltip($button, 'Copied!'); // Pass the button itself
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        showTooltip($button, 'Failed!');
+                    });
+                } else {
+                    // Basic fallback for older browsers (less reliable for complex text)
+                    try {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = questionText;
+                        textArea.style.position = "fixed"; // Prevent scrolling
+                        textArea.style.opacity = "0";
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showTooltip($button, 'Copied!');
+                    } catch (err) {
+                        console.error('Fallback copy failed: ', err);
+                        showTooltip($button, 'Failed!');
+                    }
+                }
+            });
+
+        }); // End of $(document).ready
+    </script>
+
+</body>
+</html>
